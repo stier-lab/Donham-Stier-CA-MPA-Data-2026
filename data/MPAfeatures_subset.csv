@@ -1,0 +1,63 @@
+OBJECTID,NAME,CCR,Area_sq_mi,Study_Regi,FULLNAME,Type,CCR_Int,SHORTNAME,Acres,Hectares,Shape_Leng,Shape_Area
+59,Vandenberg SMR,Section 632 (b) (95),32.90693926,CCSR,Vandenberg State Marine Reserve,SMR,95,Vandenberg,21060.52488,8522.892035,58461.31674,85228920.35
+60,Kashtayit SMCA,Section 632 (b) (97),2.017466391,SCSR,Kashtayit State Marine Conservation Area,SMCA,97,Kashtayit,1291.183625,522.5234746,9483.967111,5225234.746
+61,Goleta Slough SMCA,Section 632 (b) (100),0.158005032,SCSR,Goleta Slough State Marine Conservation Area,SMCA (No-Take),100,Goleta Slough,101.1236229,40.92327828,12623.55034,409232.7828
+62,Richardson Rock SMR,Section 632 (b) (101),40.74868812,SCSR,Richardson Rock State Marine Reserve,SMR,101,Richardson Rock,26079.26411,10553.90374,39710.83035,105539037.4
+63,San Miguel Island Special Closure,Section 632 (b) (102),0.864547939,SCSR,San Miguel Island Special Closure,Special Closure,102,San Miguel Island Special Closure,553.3128814,223.9177788,16003.88455,2239177.788
+64,Harris Point SMR,Section 632 (b) (103),25.3972158,SCSR,Harris Point State Marine Reserve,SMR,103,Harris Point,16254.28275,6577.874855,44447.18434,65778748.55
+65,Carrington Point SMR,Section 632 (b) (105),12.77991893,SCSR,Carrington Point State Marine Reserve,SMR,105,Carrington Point,8179.180645,3309.996972,31631.77099,33099969.72
+66,Skunk Point SMR,Section 632 (b) (106),1.466828973,SCSR,Skunk Point State Marine Reserve,SMR,106,Skunk Point,938.7742757,379.9084707,9819.277634,3799084.707
+67,South Point SMR,Section 632 (b) (107),13.0772612,SCSR,South Point State Marine Reserve,SMR,107,South Point,8369.480455,3387.008573,25859.98131,33870085.73
+68,Painted Cave SMCA,Section 632 (b) (108),1.784669674,SCSR,Painted Cave State Marine Conservation Area,SMCA,108,Painted Cave,1142.193134,462.229162,11441.64415,4622291.62
+69,Gull Island SMR,Section 632 (b) (109),19.93167546,SCSR,Gull Island State Marine Reserve,SMR,109,Gull Island,12756.32302,5162.300775,28571.95287,51623007.75
+70,Scorpion SMR,Section 632 (b) (110),9.63599763,SCSR,Scorpion State Marine Reserve,SMR,110,Scorpion,6167.063008,2495.721854,23659.07055,24957218.54
+71,Anacapa Island Special Closure,Section 632 (b) (111),1.026217892,SCSR,Anacapa Island Special Closure,Special Closure,111,Anacapa Island Special Closure,656.7820628,265.7902709,41173.06954,2657902.709
+72,Anacapa Island SMCA,Section 632 (b) (112),7.30173979,SCSR,Anacapa Island State Marine Conservation Area,SMCA,112,Anacapa Island,4673.132049,1891.149445,19952.19009,18911494.45
+73,Anacapa Island SMR,Section 632 (b) (113),11.54559417,SCSR,Anacapa Island State Marine Reserve,SMR,113,Anacapa Island,7389.209657,2990.307056,24872.75378,29903070.56
+74,Footprint SMR,Section 632 (b) (114),7.054430237,SCSR,Footprint State Marine Reserve,SMR,114,Footprint,4514.853306,1827.09631,24674.07887,18270963.1
+75,Begg Rock SMR,Section 632 (b) (115),37.96253171,SCSR,Begg Rock State Marine Reserve,SMR,115,Begg Rock,24296.11691,9832.289678,35151.11327,98322896.78
+76,Santa Barbara Island SMR,Section 632 (b) (116),12.76920122,SCSR,Santa Barbara Island State Marine Reserve,SMR,116,Santa Barbara Island,8172.32128,3307.221086,23465.6377,33072210.86
+77,Arrow Point to Lion Head Point SMCA,Section 632 (b) (123),0.65108345,SCSR,Arrow Point to Lion Head Point State Marine Conservation Area,SMCA,123,Arrow Point to Lion Head Point,416.6950654,168.6305101,12103.32321,1686305.102
+78,Blue Cavern Onshore SMCA,Section 632 (b) (124),2.614145889,SCSR,Blue Cavern Onshore State Marine Conservation Area,SMCA (No-Take),124,Blue Cavern Onshore,1673.060023,677.0633697,13690.47026,6770633.697
+79,Blue Cavern Offshore SMCA,Section 632 (b) (125),7.695296526,SCSR,Blue Cavern Offshore State Marine Conservation Area,SMCA,125,Blue Cavern Offshore,4925.009362,1993.080577,18212.74882,19930805.77
+80,Long Point SMR,Section 632 (b) (126),1.669392332,SCSR,Long Point State Marine Reserve,SMR,126,Long Point,1068.415341,432.3723485,10365.06041,4323723.485
+81,Casino Point SMCA (No-Take),Section 632 (b) (127),0.007398362,SCSR,Casino Point State Marine Conservation Area,SMCA (No-Take),127,Casino Point,4.734970212,1.916174461,684.2487608,19161.74461
+82,Lover's Cove SMCA,Section 632 (b) (128),0.060596845,SCSR,Lover's Cove State Marine Conservation Area,SMCA,128,Lover's Cove,38.78213495,15.69457319,2102.61778,156945.7319
+83,Farnsworth Onshore SMCA,Section 632 (b) (129),2.590291594,SCSR,Farnsworth Onshore State Marine Conservation Area,SMCA,129,Farnsworth Onshore,1657.793213,670.885111,12389.4723,6708851.11
+84,Farnsworth Offshore SMCA,Section 632 (b) (130),6.671486895,SCSR,Farnsworth Offshore State Marine Conservation Area,SMCA,130,Farnsworth Offshore,4269.768593,1727.914045,17076.32936,17279140.38
+85,Batiquitos Lagoon SMCA (No-Take),Section 632 (b) (137),0.506230272,SCSR,Batiquitos Lagoon State Marine Conservation Area,SMCA (No-Take),137,Batiquitos Lagoon,323.9886628,131.1135601,9857.095719,1311135.601
+86,Swamis SMCA,Section 632 (b) (138),12.7079404,SCSR,Swami's State Marine Conservation Area,SMCA,138,Swami's,8133.114197,3291.354542,23500.54526,32913545.42
+87,San Elijo Lagoon SMCA (No-Take),Section 632 (b) (139),0.501489787,SCSR,San Elijo Lagoon State Marine Conservation Area,SMCA (No-Take),139,San Elijo Lagoon,320.95474,129.8857751,15794.59691,1298857.751
+88,San Dieguito Lagoon SMCA,Section 632 (b) (140),0.113132767,SCSR,San Dieguito Lagoon State Marine Conservation Area,SMCA,140,San Dieguito Lagoon,72.4052588,29.30136866,2969.309557,293013.6866
+89,San Diego-Scripps Coastal SMCA,Section 632 (b) (141),1.456883289,SCSR,San Diego-Scripps Coastal State Marine Conservation Area,SMCA,141,San Diego-Scripps Coastal,932.4090126,377.3325401,7648.280376,3773325.401
+90,Matlahuayl SMR,Section 632 (b) (142),1.036470935,SCSR,Matlahuayl State Marine Reserve,SMR,142,Matlahuayl,663.3440361,268.4458073,6874.408593,2684458.073
+91,South La Jolla SMR,Section 632 (b) (143),5.043712534,SCSR,South La Jolla State Marine Reserve,SMR,143,South La Jolla,3227.988858,1306.320744,16331.37021,13063207.44
+92,South La Jolla SMCA,Section 632 (b) (144),2.459629639,SCSR,South La Jolla State Marine Conservation Area,SMCA,144,South La Jolla,1574.169229,637.0436853,10172.26509,6370436.853
+93,Famosa Slough SMCA (No-Take),Section 632 (b) (145),0.031849342,SCSR,Famosa Slough State Marine Conservation Area,SMCA (No-Take),145,Famosa Slough,20.38366013,8.248974592,2368.938372,82489.74592
+94,Cabrillo SMR,Section 632 (b) (146),0.390529029,SCSR,Cabrillo State Marine Reserve,SMR,146,Cabrillo,249.9395723,101.1469563,5845.092601,1011469.563
+95,Tijuana River Mouth SMCA,Section 632 (b) (147),3.015586939,SCSR,Tijuana River Mouth State Marine Conservation Area,SMCA,147,Tijuana River Mouth,1929.983316,781.0365379,11589.86961,7810365.35
+96,Gull Island FMR,N/A,14.49770827,SCSR,Gull Island Federal Marine Reserve,FMR,0,Gull Island,9278.570193,3754.904138,27801.3765,37549041.38
+97,Footprint FMR,N/A,21.31123705,SCSR,Footprint Federal Marine Reserve,FMR,0,Footprint,13639.24595,5519.607007,29758.80245,55196070.07
+98,South Point FMR,N/A,1.884193271,SCSR,South Point Federal Marine Reserve,FMR,0,South Point,1205.888489,488.0057575,13642.06672,4880057.575
+99,Richardson Rock FMR,N/A,31.97444022,SCSR,Richardson Rock Federal Marine Reserve,FMR,0,Richardson Rock,20463.72312,8281.374934,63946.46078,82813749.34
+100,Harris Point FMR,N/A,23.62232893,SCSR,Harris Point Federal Marine Reserve,FMR,0,Harris Point,15118.35064,6118.179436,33818.39801,61181794.36
+101,Scorpion FMR,N/A,8.800591985,SCSR,Scorpion Federal State Marine Reserve,FMR,0,Scorpion,5632.401269,2279.351925,19586.10793,22793519.25
+102,Anacapa Island FMR,N/A,3.78533754,SCSR,Anacapa Island Federal Marine Reserve,FMR,0,Anacapa,2422.62566,980.401821,13793.00059,9804018.21
+103,Anacapa Island FMCA,N/A,2.352965759,SCSR,Anacapa Island Federal Marine Conservation Area,FMCA,0,Anacapa,1505.904074,609.4177575,10441.8884,6094177.575
+104,Santa Barbara Island FMR,N/A,43.96987382,SCSR,Santa Barbara Island Federal Marine Reserve,FMR,0,Santa Barbara Island,28140.83116,11388.19033,45667.12636,113881903.3
+138,Point Conception SMR,Section 632 (b) (96),22.52344824,SCSR,Point Conception State Marine Reserve,SMR,96,Point Conception,14415.0642,5833.569513,33865.26851,58335695.13
+139,Naples SMCA,Section 632 (b) (98),2.601557977,SCSR,Naples State Marine Conservation Area,SMCA,98,Naples,1665.003727,673.8031024,11333.54496,6738031.024
+140,Campus Point SMCA,Section 632 (b) (99),10.55959508,SCSR,Campus Point State Marine Conservation Area,SMCA (No-Take),99,Campus Point,6758.167725,2734.933446,22693.80013,27349334.46
+141,Judith Rock SMR,Section 632 (b) (104),4.557376943,SCSR,Judith Rock State Marine Reserve,SMR,104,Judith Rock,2916.732843,1180.359904,17039.05029,11803599.04
+142,Point Dume SMCA,Section 632 (b) (117),15.92034847,SCSR,Point Dume State Marine Conservation Area,SMCA,117,Point Dume,10189.06354,4123.367722,27531.84947,41233677.22
+143,Point Dume SMR,Section 632 (b) (118),7.532244735,SCSR,Point Dume State Marine Reserve,SMR,118,Point Dume,4820.655801,1950.850189,22778.15336,19508501.89
+144,Abalone Cove SMCA,Section 632 (b) (120),4.794214352,SCSR,Abalone Cove State Marine Conservation Area,SMCA,120,Abalone Cove,3068.309387,1241.700755,16749.10053,12417007.55
+145,Point Vicente SMCA,Section 632 (b) (119),15.04456164,SCSR,Point Vicente State Marine Conservation Area,SMCA (No-Take),119,Point Vicente,9628.557742,3896.539074,25863.7507,38965390.74
+146,Bolsa Bay SMCA,Section 632 (b) (121),0.06924646,SCSR,Bolsa Bay State Marine Conservation Area,SMCA,121,Bolsa Bay,44.31791063,17.93482212,2767.610556,179348.2212
+147,Bolsa Chica Basin SMCA (No-Take),Section 632 (b) (122),0.702769367,SCSR,Bolsa Chica Basin State Marine Conservation Area,SMCA (No-Take),122,Bolsa Chica Basin,449.7741832,182.0171542,15412.70482,1820171.542
+148,Cat Harbor SMCA,Section 632 (b) (131),0.257908337,SCSR,Cat Harbor State Marine Conservation Area,SMCA,131,Cat Harbor,165.0619922,66.79821831,5303.793132,667982.1831
+149,Upper Newport Bay SMCA,Section 632 (b) (132),1.242735659,SCSR,Upper Newport Bay State Marine Conservation Area,SMCA,132,Upper Newport Bay,795.3539844,321.868338,23216.61006,3218683.38
+150,Laguna Beach SMCA ,Section 632 (b) (135),3.091660215,SCSR,Laguna Beach State Marine Conservation Area,SMCA (No-Take),135,Laguna Beach,1978.670407,800.7395043,15792.10345,8007395.043
+151,Crystal Cove SMCA,Section 632 (b) (133),3.527966535,SCSR,Crystal Cove State Marine Conservation Area,SMCA,133,Crystal Cove,2257.907561,913.7427716,17674.84805,9137427.729
+152,Laguna Beach SMR,Section 632 (b) (134),6.715329944,SCSR,Laguna Beach State Marine Reserve,SMR,134,Laguna Beach,4297.828256,1739.269388,20909.06055,17392693.99
+153,Dana Point SMCA,Section 632 (b) (136),3.468253819,SCSR,Dana Point State Marine Conservation Area,SMCA,136,Dana Point,2219.691271,898.2771877,18246.46725,8982771.877

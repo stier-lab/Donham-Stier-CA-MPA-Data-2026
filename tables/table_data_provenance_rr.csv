@@ -1,0 +1,30 @@
+source,y,resp,n_observations,n_MPAs,n_years,year_range,MPAs
+KFM,Macrocystis pyrifera,Bio,177,6,39,1984-2023,Anacapa Island SMR 2003; Gull Island SMR; Harris Point SMR; Santa Barbara Island SMR; Scorpion SMR; South Point SMR
+KFM,Macrocystis pyrifera,Den,177,6,39,1984-2023,Anacapa Island SMR 2003; Gull Island SMR; Harris Point SMR; Santa Barbara Island SMR; Scorpion SMR; South Point SMR
+KFM,Mesocentrotus franciscanus,Bio,143,5,37,1985-2022,Anacapa Island SMR 2003; Gull Island SMR; Harris Point SMR; Scorpion SMR; South Point SMR
+KFM,Mesocentrotus franciscanus,Den,191,6,41,1982-2023,Anacapa Island SMR 2003; Gull Island SMR; Harris Point SMR; Santa Barbara Island SMR; Scorpion SMR; South Point SMR
+KFM,Panulirus interruptus,Den,188,6,40,1983-2023,Anacapa Island SMR 2003; Gull Island SMR; Harris Point SMR; Santa Barbara Island SMR; Scorpion SMR; South Point SMR
+KFM,Semicossyphus pulcher,Den,183,6,38,1985-2023,Anacapa Island SMR 2003; Gull Island SMR; Harris Point SMR; Santa Barbara Island SMR; Scorpion SMR; South Point SMR
+KFM,Semicossyphus pulcher,RD,106,6,19,2003-2023,Anacapa Island SMR 2003; Gull Island SMR; Harris Point SMR; Santa Barbara Island SMR; Scorpion SMR; South Point SMR
+KFM,Strongylocentrotus purpuratus,Bio,143,5,37,1985-2022,Anacapa Island SMR 2003; Gull Island SMR; Harris Point SMR; Scorpion SMR; South Point SMR
+KFM,Strongylocentrotus purpuratus,Den,191,6,41,1982-2023,Anacapa Island SMR 2003; Gull Island SMR; Harris Point SMR; Santa Barbara Island SMR; Scorpion SMR; South Point SMR
+LTER,Macrocystis pyrifera,Bio,46,2,23,2001-2023,Campus Point SMCA; Naples SMCA
+LTER,Macrocystis pyrifera,Den,46,2,23,2001-2023,Campus Point SMCA; Naples SMCA
+LTER,Mesocentrotus franciscanus,Bio,27,2,14,2009-2023,Campus Point SMCA; Naples SMCA
+LTER,Mesocentrotus franciscanus,Den,46,2,23,2001-2023,Campus Point SMCA; Naples SMCA
+LTER,Panulirus interruptus,Bio,24,2,12,2012-2023,Campus Point SMCA; Naples SMCA
+LTER,Panulirus interruptus,Den,24,2,12,2012-2023,Campus Point SMCA; Naples SMCA
+LTER,Semicossyphus pulcher,Bio,45,2,23,2001-2023,Campus Point SMCA; Naples SMCA
+LTER,Semicossyphus pulcher,Den,45,2,23,2001-2023,Campus Point SMCA; Naples SMCA
+LTER,Strongylocentrotus purpuratus,Bio,26,2,13,2011-2023,Campus Point SMCA; Naples SMCA
+LTER,Strongylocentrotus purpuratus,Den,46,2,23,2001-2023,Campus Point SMCA; Naples SMCA
+PISCO,Macrocystis pyrifera,Bio,148,10,20,2004-2023,Abalone Cove SMCA; Anacapa Island SMR 2003; Campus Point SMCA; Gull Island SMR; Harris Point SMR; Matlahuayl SMR; Naples SMCA; Point Vicente SMCA; Scorpion SMR; South Point SMR
+PISCO,Macrocystis pyrifera,Den,148,10,20,2004-2023,Abalone Cove SMCA; Anacapa Island SMR 2003; Campus Point SMCA; Gull Island SMR; Harris Point SMR; Matlahuayl SMR; Naples SMCA; Point Vicente SMCA; Scorpion SMR; South Point SMR
+PISCO,Mesocentrotus franciscanus,Bio,119,9,20,2004-2023,Abalone Cove SMCA; Campus Point SMCA; Gull Island SMR; Harris Point SMR; Matlahuayl SMR; Naples SMCA; Point Vicente SMCA; Scorpion SMR; South Point SMR
+PISCO,Mesocentrotus franciscanus,Den,148,10,20,2004-2023,Abalone Cove SMCA; Anacapa Island SMR 2003; Campus Point SMCA; Gull Island SMR; Harris Point SMR; Matlahuayl SMR; Naples SMCA; Point Vicente SMCA; Scorpion SMR; South Point SMR
+PISCO,Panulirus interruptus,Bio,31,3,13,2011-2023,Abalone Cove SMCA; Matlahuayl SMR; Point Vicente SMCA
+PISCO,Panulirus interruptus,Den,148,10,20,2004-2023,Abalone Cove SMCA; Anacapa Island SMR 2003; Campus Point SMCA; Gull Island SMR; Harris Point SMR; Matlahuayl SMR; Naples SMCA; Point Vicente SMCA; Scorpion SMR; South Point SMR
+PISCO,Semicossyphus pulcher,Bio,219,17,21,2003-2023,Abalone Cove SMCA; Anacapa Island SMR 2003; Blue Cavern Onshore SMCA; Campus Point SMCA; Cat Harbor SMCA; Dana Point SMCA; Farnsworth Onshore SMCA; Gull Island SMR; Harris Point SMR; Long Point SMR; Matlahuayl SMR; Naples SMCA; Point Vicente SMCA; Santa Barbara Island SMR; Scorpion SMR; South Point SMR; Swamis SMCA
+PISCO,Semicossyphus pulcher,Den,219,17,21,2003-2023,Abalone Cove SMCA; Anacapa Island SMR 2003; Blue Cavern Onshore SMCA; Campus Point SMCA; Cat Harbor SMCA; Dana Point SMCA; Farnsworth Onshore SMCA; Gull Island SMR; Harris Point SMR; Long Point SMR; Matlahuayl SMR; Naples SMCA; Point Vicente SMCA; Santa Barbara Island SMR; Scorpion SMR; South Point SMR; Swamis SMCA
+PISCO,Strongylocentrotus purpuratus,Bio,120,9,20,2004-2023,Abalone Cove SMCA; Campus Point SMCA; Gull Island SMR; Harris Point SMR; Matlahuayl SMR; Naples SMCA; Point Vicente SMCA; Scorpion SMR; South Point SMR
+PISCO,Strongylocentrotus purpuratus,Den,148,10,20,2004-2023,Abalone Cove SMCA; Anacapa Island SMR 2003; Campus Point SMCA; Gull Island SMR; Harris Point SMR; Matlahuayl SMR; Naples SMCA; Point Vicente SMCA; Scorpion SMR; South Point SMR

@@ -1,0 +1,7 @@
+"Source","Taxon","Size_Data_Source","Assumption"
+"PISCO","Urchins (S. purpuratus, M. franciscanus)","Own (PISCO size-frequency with 25mm filter)","None — native size data"
+"PISCO","Lobster (P. interruptus, VRG only)","Own (PISCO VRG size-frequency)","None — native size data"
+"KFM","Urchins (S. purpuratus, M. franciscanus)","Cross-program (PISCO SizeFreq.Urch.OG, no 25mm filter)","Assumes PISCO urchin size structure applies to KFM sites"
+"KFM","Kelp (M. pyrifera)","Own (KFM stipe counts per individual)","None — native stipe count data"
+"LTER","Urchins (S. purpuratus, M. franciscanus)","Cross-program (PISCO SizeFreq.Urch.OG, no 25mm filter)","Assumes PISCO urchin size structure applies to LTER sites"
+"LTER","Lobster (P. interruptus)","Own (LTER measures carapace length directly)","None — native size data"
