@@ -21,8 +21,9 @@
 #   which integrates multiple long-term monitoring programs.
 #
 # KEY DIFFERENCES FROM PISCO:
-#   - KFM uses different transect sizes (quads are 2m2 vs PISCO 60m2)
-#   - KFM has longer time series (since 1984 for some sites)
+#   - KFM uses different transect sizes (urchin quads 1 m^2 in 1982-1984,
+#     2 m^2 from 1985 onward; Macrocystis quads 1, 2, or 10 m^2; PISCO swath 60 m^2)
+#   - KFM has longer time series (since 1982 for some sites)
 #   - All KFM sites are in the Channel Islands
 #   - Sheephead surveyed via visual fish counts and roving diver fish counts
 #
@@ -187,15 +188,33 @@ kfm.site <- subset(kfm.site, taxon_name == "Strongylocentrotus purpuratus" |
                      taxon_name == "Mesocentrotus franciscanus" |
                      taxon_name == "Macrocystis pyrifera" |
                      taxon_name == "Panulirus interruptus")
+# KFM LOBSTER NOTE (audit 2026-05-04): KFM lobsters (Panulirus interruptus)
+# are surveyed on belt transects whose dimensions changed in 1985, per
+# Davis et al. 1997 KFM Handbook Vol 1, p.39:
+#   - 1983-1984: 10 transects per site, each 2 m x 20 m = 40 m^2.
+#   - 1985-present: 12 transects per site, each 3 m x 20 m = 60 m^2.
+# Mechanism: two divers each lay a 10 m perpendicular tape from the main
+# transect, then count organisms within 1.5 m on each side (each diver
+# covers 3 m x 10 m = 30 m^2; CountA + CountB = 3 m x 20 m = 60 m^2).
+# Density is computed at L206 below via safe_divide(count, area) so the
+# row-level `area` is used and the temporal transect-size change is
+# handled correctly. KFM does NOT collect lobster sizes - there is no
+# bootstrap step for KFM lobster, so KFM lobster contributes ONLY to
+# density (no biomass) in the harmonized outputs. PISCO and LTER lobster
+# biomass come through their own size-aware pipelines (UCSB direct CL
+# measurement, VRG roving-diver bootstrap, LTER direct CL measurement).
 
-# Remove juvenile giant kelp (proj_taxon_id "t-k-002" = juvenile Macrocystis)
-# Other programs don't distinguish juveniles, so excluding for cross-program consistency
+# Remove juvenile giant kelp (proj_taxon_id "t-k-002" = juvenile Macrocystis).
+# PISCO and LTER record only adult Macrocystis; excluding KFM juveniles keeps
+# the cross-program comparison on adult stipe counts.
 kfm.site <- subset(kfm.site, taxon_name != "Macrocystis pyrifera" | proj_taxon_id != "t-k-002")
 
 cat("  KFM target taxa rows:", nrow(kfm.site), "\n")
 
-# Sum across different Macrocystis proj_taxon_ids (adult stipe counts + holdfast counts)
-# This aggregates all adult Macro counts into one record per site-year-replicate
+# Sum across the adult-Macrocystis proj_taxon_ids retained above. KFM stores
+# adult Macro stipes under multiple proj_taxon_ids (including a holdfast-based
+# whole-plant tally) which we sum across all individuals at a site-year-
+# replicate to get total stipe count.
 kfm.sum <- kfm.site %>%
   dplyr::group_by(site_id, taxon_name, status, CA_MPA_Name_Short, area, ChannelIsland, replicate_id, MPA_Start, time, year) %>%
   dplyr::summarise_at(c("count"), sum) %>%
@@ -214,35 +233,47 @@ kfm.ave <- kfm.sum %>%
 # ===========================================================================
 # Section 6: Calculate urchin biomass via bootstrap resampling
 # ===========================================================================
-# KFM counts urchins but doesn't measure individual sizes. To estimate biomass,
-# we bootstrap-resample from the PISCO size-frequency distribution (SizeFreq.Urch.OG)
-# collected from the same MPA/status/year, then apply species-specific allometric
-# equations (bio_redurch for M. franciscanus, bio_purpurch for S. purpuratus).
+# KFM does not record individual urchin sizes, only counts per quadrat. To
+# estimate biomass we bootstrap-resample sizes from the urchin size-frequency
+# pool in `SizeFreq.Urch.OG`, then apply species-specific allometric equations
+# (bio_redurch for M. franciscanus, bio_purpurch for S. purpuratus).
 #
 # CROSS-PROGRAM BOOTSTRAP ASSUMPTION:
-#   KFM does not collect urchin size data — only total counts per quadrat.
-#   To estimate biomass, we borrow size-frequency distributions from PISCO,
-#   which measures individual urchin test diameters at overlapping or nearby
-#   sites within the same MPAs.
+#   `SizeFreq.Urch.OG` is built in 04_pisco_processing.R from
+#   `data/ALL_sizefreq_2024.csv`. Verified against the file's `method`
+#   column (audit 2026-05-04): for the two urchin classcodes
+#   (MESFRA, STRPUR) the pool contains:
+#       SBTL_SIZEFREQ_PISCO  : 3,848 obs (PISCO UCSB)
+#       SBTL_SIZEFREQ_VRG    : 16,810 obs (PISCO VRG)
+#       SBTL_SIZEFREQ_KFM    : 0 obs   <-- not in the file as of 2024 release
+#       SBTL_SIZEFREQ_LTER   : 0 obs
+#   So the urchin size-frequency pool is effectively PISCO-only. (Emily's
+#   2026-04 review note suggested KFM contributes urchin sizes via
+#   separate site-level surveys. Those internal KFM size-frequency
+#   files are NOT included in ALL_sizefreq_2024.csv. If we obtain them
+#   later, they could be appended with method = SBTL_SIZEFREQ_KFM and
+#   the bootstrap would automatically use them.)
 #
-#   The bootstrap matches by: CA_MPA_Name_Short, site_status (mpa/reference),
-#   year, and species (classcode). For each KFM site-year, we draw `n`
-#   individuals (with replacement) from the PISCO size-frequency pool and
-#   convert to biomass via allometric equations.
+#   The bootstrap therefore matches KFM count rows to PISCO size data
+#   by: CA_MPA_Name_Short, site_status (mpa/reference), year, and species
+#   (classcode). For each KFM site-year, we draw `n` individuals (with
+#   replacement) from the matched PISCO size-frequency pool and convert
+#   to biomass via allometric equations. When no matching size data
+#   exists for a given MPA/year/status combination, biomass is set to NA
+#   and the observation is excluded.
 #
-#   Key assumption: Urchin size structure at KFM sites is similar to PISCO
-#   sites within the same MPA and year. This is a necessary approximation
-#   because KFM's monitoring protocol does not include size measurements.
-#   When no matching PISCO size data exists for a given MPA/year/status
-#   combination, biomass is set to NA and that observation is excluded.
+#   ASSUMPTION: PISCO-derived urchin size structure is representative of
+#   KFM-counted urchins at the same MPA/year. Reasonable because PISCO
+#   and KFM sample many overlapping or near-by sites in the Channel
+#   Islands, but it IS a cross-program assumption.
 #
 #   The same approach is used for LTER urchins in 06_lter_processing.R.
 #
 #   Note: SizeFreq.Urch.OG is the UNFILTERED size-frequency data (before
-#   the PISCO-specific 25mm minimum filter applied in 04_pisco_processing.R).
-#   This is important because KFM may count smaller urchins that PISCO
-#   would exclude. Using the unfiltered distribution ensures the bootstrap
-#   can draw from the full range of sizes that KFM might observe.
+#   the PISCO-specific 25 mm minimum filter applied in 04_pisco_processing.R).
+#   This matters because KFM does not apply a 25 mm threshold; using the
+#   unfiltered pool ensures small-urchin counts are matched to small-urchin
+#   sizes when bootstrapping biomass.
 
 URCHINS <- subset(kfm.site, taxon_name == "Strongylocentrotus purpuratus" |
                     taxon_name == "Mesocentrotus franciscanus")
@@ -304,7 +335,7 @@ if (!exists("Urchin.site") || is.null(Urchin.site)) {
     #   bio_purpurch: S. purpuratus (purple urchin) allometric equation
     bio_fun <- if (u$taxon_name[i] == "MESFRAAD") bio_redurch else bio_purpurch
 
-    # Wrap bootstrap in tryCatch for robustness
+    # Wrap bootstrap in tryCatch to capture failures
     result <- tryCatch(
       bootstrap_biomass(
         count = n,
@@ -386,10 +417,21 @@ KFM.Urchin.site.merge.sub$biomass.ave <- safe_divide(
 
 KFM.Urchin.site.all <- KFM.Urchin.site.merge.sub
 
-# KFM quadrats are 2 m^2 (KFM_QUAD_AREA_M2 from 00c_analysis_constants.R),
-# so divide by 2 to convert to per m^2
-KFM.Urchin.site.all$Density <- KFM.Urchin.site.all$count.ave / KFM_QUAD_AREA_M2
-KFM.Urchin.site.all$bio.m2 <- KFM.Urchin.site.all$biomass.ave / KFM_QUAD_AREA_M2
+# Convert per-quadrat counts/biomass to per-m^2 densities.
+# KFM urchin quadrat sizes changed over time: 1 m^2 in 1982-1984, then 2 m^2 from
+# 1985 onward (per data audit 2026-05-03). Use the row-level `area` column rather
+# than a single constant. The `u` table at L254 deduplicates on `area`, so each
+# bootstrap row carries the correct quad size for its year. Earlier code divided
+# by a fixed KFM_QUAD_AREA_M2 = 2, which under-estimated densities by 50% for
+# 1982-1984 observations.
+KFM.Urchin.site.all$Density <- safe_divide(
+  KFM.Urchin.site.all$count.ave, KFM.Urchin.site.all$area,
+  context = "KFM urchin density per m^2"
+)
+KFM.Urchin.site.all$bio.m2 <- safe_divide(
+  KFM.Urchin.site.all$biomass.ave, KFM.Urchin.site.all$area,
+  context = "KFM urchin biomass per m^2"
+)
 
 # Restore full species names (reverse the abbreviation from Section 6)
 KFM.Urchin.site.all <- dplyr::mutate(KFM.Urchin.site.all, y = dplyr::case_when(
@@ -400,14 +442,13 @@ KFM.Urchin.site.all <- dplyr::mutate(KFM.Urchin.site.all, y = dplyr::case_when(
 # ===========================================================================
 # Section 7: Process KFM Macrocystis stipe data from raw stipe counts file
 # ===========================================================================
-# KFM monitors giant kelp using individual stipe counts per plant.
-# Unlike LTER which counts fronds, KFM counts stipes (the main stem-like
-# structures). This is an important methodological distinction:
-#   - Stipe = the main support structure of the kelp
-#   - Frond = the blade-bearing lateral branch
-#   - One stipe can produce multiple fronds
-# We use the bio_macro() function (from 01_utils.R) to convert stipe counts
-# to biomass using an average slope from published allometric relationships.
+# KFM divers count stipes on ~100 individual kelp plants per site per survey
+# (the KFM_Macrocystis_RawData file). For our biomass conversion, "stipes"
+# and "fronds" refer to the same structural unit. Li (LTER) confirmed the
+# LTER and KFM raw counts are the same quantity despite the differing
+# terminology in each program's metadata. We therefore treat stipes = fronds
+# throughout and apply the bio_macro() conversion (01_utils.R) which uses an
+# averaged stipe-to-biomass slope from published allometric relationships.
 
 kfm.stipe <- read.csv(here::here("data", "MBON", "KFM_Macrocystis_RawData_1984-2023.csv"))
 
@@ -514,7 +555,7 @@ if (!exists("Macro.site") || is.null(Macro.site)) {
                   kfm.stipe.site$year == u$year[i] &
                   kfm.stipe.site$ScientificName == u$taxon_name[i])
 
-    # Wrap bootstrap in tryCatch for robustness
+    # Wrap bootstrap in tryCatch to capture failures
     result_row <- tryCatch({
       if (n != 0 & length(t2) != 0) {
         # Kelp found on transect and in stipe data: bootstrap stipe counts
@@ -539,21 +580,21 @@ if (!exists("Macro.site") || is.null(Macro.site)) {
                    y = u$taxon_name[i], count = aveD, biomass = aveB, ind = n)
 
       } else if (n == 0 & length(t2) == 0) {
-        # No kelp on transect or in stipe data — true zero
+        # No kelp on transect or in stipe data: true zero
         data.frame(site = u$site_id[i], CA_MPA_Name_Short = u$CA_MPA_Name_Short[i],
                    site_status = u$status[i],
                    year = u$year[i], transect = length(t), area = u$area[i],
                    y = u$taxon_name[i], count = 0, biomass = 0, ind = 0)
 
       } else if (n != 0 & length(t2) == 0) {
-        # Kelp on transect but no stipe data — can't estimate biomass, mark as NA
+        # Kelp on transect but no stipe data: can't estimate biomass, mark as NA
         data.frame(site = u$site_id[i], CA_MPA_Name_Short = u$CA_MPA_Name_Short[i],
                    site_status = u$status[i],
                    year = u$year[i], transect = length(t), area = u$area[i],
                    y = u$taxon_name[i], count = NA, biomass = NA, ind = n)
 
       } else {
-        # n == 0 but stipe data exists — no individuals on transect
+        # n == 0 but stipe data exists: no individuals on transect
         data.frame(site = u$site_id[i], CA_MPA_Name_Short = u$CA_MPA_Name_Short[i],
                    site_status = u$status[i],
                    year = u$year[i], transect = length(t), area = u$area[i],
@@ -717,8 +758,26 @@ cat("  KFM response ratios:", nrow(KFM.join.ave), "rows (density + biomass)\n")
 # Section 11: Create KFM.resp dataframe with raw density/biomass
 # ===========================================================================
 
-# Only want 10m^2 area for Macro (exclude 2m^2 and 1m^2 quadrat areas)
-# This ensures we're using the same sampling unit for Macrocystis across programs
+# Filter Macrocystis to the modern (1996+) 5 m quadrat protocol.
+#
+# AREA == 10 EXPLAINED (audit 2026-05-04):
+# In the MBON-integrated CSV each Macrocystis row has area = 1, 2, or 10 m^2.
+# These correspond to KFM's three quadrat eras (per Davis et al. 1997
+# Handbook Vol 1, pp.13, 35, 38):
+#   - area = 1 m^2 (1982-1984): legacy 1 m quadrat protocol, 30-40 quads/site.
+#   - area = 2 m^2 (1985+):     1 m quadrat protocol with paired-diver
+#                                 redesign (two divers each sample adjacent
+#                                 1 m^2 quads on opposite sides; entered as
+#                                 the 2 m^2 paired total).
+#   - area = 10 m^2 (1996+):    Macrocystis-specific 5 m x 1 m quadrat
+#                                 protocol added in 1996. Each diver samples
+#                                 a 5 m^2 half-quad; the paired total
+#                                 (CountA + CountB) covers 10 m^2. MBON
+#                                 stores this paired total as area = 10.
+# We keep only the 10 m^2 records (the modern adult-Macrocystis-targeted
+# protocol). This drops the 1 m^2 era entirely and the 2 m^2 records, which
+# would mix sampling units across years. See METHODS_REFERENCES.md for the
+# full provenance.
 kfm.edit.den <- subset(kfm.ave.ave, y != "Macrocystis pyrifera" | area != 2)
 kfm.edit.den <- subset(kfm.edit.den, y != "Macrocystis pyrifera" | area != 1)
 
@@ -769,9 +828,19 @@ KFM.join.ave <- assign_ba_from_site_table(KFM.join.ave, Sites2)
 # Section 13: Process KFM fish data (sheephead from MBON fish file)
 # ===========================================================================
 # KFM sheephead (Semicossyphus pulcher) data comes from a separate MBON fish file.
-# KFM uses two fish survey methods:
-#   - "rdfc" (Roving Diver Fish Count): started in 2003 (KFM_RDFC_SURVEY_START_YEAR)
-#   - "visualfish" (Visual Fish Transect): older method, longer time series
+# Unlike PISCO, KFM does NOT record individual fish sizes, only counts per
+# transect, so the KFM sheephead pipeline produces density only. Biomass is
+# unavailable for KFM sheephead and is excluded from biomass-side analyses.
+# KFM uses two fish survey methods (per Davis et al. 1997 KFM Handbook
+# Vol 1, p.45-48):
+#   - "visualfish" (Visual Fish Transect): since 1985. Transect dimensions
+#     changed in 1996 from 3 m x 2 m x 100 m to 3 m x 2 m x 50 m (four
+#     transects per site throughout; transects 1+2 from 1996+ sum to old
+#     transect 1, transects 3+4 sum to old transect 2 - comparable across
+#     the change).
+#   - "rdfc" (Roving Diver Fish Count): implemented in 1996
+#     (KFM_RDFC_SURVEY_START_YEAR). 30-minute roving counts, abundance
+#     scored on a 10-point time-of-encounter scale.
 # We process both methods separately and combine their response ratios.
 
 mbon.fish <- read.csv(here::here("data", "MBON", "SBCMBON_kelp_forest_integrated_fish_20231022.csv"))

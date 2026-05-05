@@ -59,13 +59,13 @@ log_message <- function(..., sep = "", append = TRUE) {
 
 log_message("", append = FALSE)
 log_message("========================================================================\n")
-log_message("  CA MPA Kelp Forest — Data Processing Pipeline\n")
+log_message("  CA MPA Kelp Forest: Data Processing Pipeline\n")
 log_message("  Started: ", format(pipeline_start, "%Y-%m-%d %H:%M:%S"), "\n")
 log_message("========================================================================\n\n")
 
 cat("\n")
 cat("========================================================================\n")
-cat("  CA MPA Kelp Forest — Data Processing Pipeline\n")
+cat("  CA MPA Kelp Forest: Data Processing Pipeline\n")
 cat("  Started: ", format(pipeline_start, "%Y-%m-%d %H:%M:%S"), "\n")
 cat("========================================================================\n\n")
 
@@ -73,7 +73,7 @@ cat("========================================================================\n\
 ## Helpers #########################################################################################
 ####################################################################################################
 
-# Pipeline results tracker — accumulates per-script timing and status
+# Pipeline results tracker. Accumulates per-script timing and status
 pipeline_results <- data.frame(
   label     = character(0),
   script    = character(0),
@@ -210,9 +210,9 @@ check_objects(c("LTER.join.ave"), "06")
 
 # --- 06b: Landsat ---
 source_module("06b_landsat_processing.R", "06b")
-# Landsat is optional — warn but don't halt if missing
+# Landsat is optional. Warn but don't halt if missing
 if (!exists("Landsat.RR", envir = globalenv())) {
-  warning("Landsat.RR not found after 06b — Landsat data was unavailable. Continuing without it.")
+  warning("Landsat.RR not found after 06b. Landsat data was unavailable. Continuing without it.")
 } else {
   cat("  Checkpoint OK: Landsat.RR found.\n")
 }

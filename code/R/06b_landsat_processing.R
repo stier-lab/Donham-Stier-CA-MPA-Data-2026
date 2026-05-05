@@ -57,13 +57,16 @@ source(here::here("code", "R", "01_utils.R"))
 # ===========================================================================
 # Landsat satellite imagery allows us to estimate kelp canopy area remotely.
 # The data is organized with one row per MPA-status-replicate combination and
-# one column per year (wide format). Each value represents estimated canopy
-# biomass (kg wet weight) derived from satellite reflectance measurements.
+# one column per year (wide format). Each annual value is the MAX (peak) kelp
+# canopy biomass observed across the year, in kg wet weight, derived from
+# Landsat reflectance via the Bell/SBC LTER kelp-watch product. Annual MAX
+# (rather than mean) is used because kelp canopy is highly seasonal and the
+# peak reflects the realized standing biomass each year.
 
 landsat_data_path <- here::here("data", "LANDSAT", "MPA_Runs_new.csv")
 
 # Check if file exists before trying to read it
-# file.exists() returns TRUE/FALSE; this makes the script robust to missing data
+# file.exists() returns TRUE/FALSE so the script handles missing data cleanly
 if (!file.exists(landsat_data_path)) {
   warning("Landsat data file not found: ", landsat_data_path,
           "\nLandsat.RR and Landsat.resp will not be created.")

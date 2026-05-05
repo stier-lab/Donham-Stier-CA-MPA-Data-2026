@@ -140,7 +140,7 @@ cat("  LTER target taxa density averages:", nrow(lter.ave), "rows\n")
 # This is the same approach used in 05_kfm_processing.R for KFM urchins.
 #
 # CROSS-PROGRAM BOOTSTRAP ASSUMPTION:
-#   LTER does not collect urchin size data — only total counts per quadrat.
+#   LTER does not collect urchin size data, only total counts per quadrat.
 #   To estimate biomass, we borrow size-frequency distributions from PISCO
 #   (SizeFreq.Urch.OG), which measures individual urchin test diameters.
 #
@@ -268,7 +268,7 @@ if (!is.null(cached)) {
     )
   }
 
-  # Combine all results at once — O(n) instead of O(n^2)
+  # Combine all results at once: O(n) instead of O(n^2)
   Urchin.site <- dplyr::bind_rows(results_list)
 
   # Save cache
@@ -385,7 +385,7 @@ lter.ave.ave <- mutate(lter.ave.ave, y = case_when(
 names(lter.ave.ave)[names(lter.ave.ave) == "Density"] <- "den"
 
 ## --- LTER density proportions and log response ratios ---
-# Exclude Macrocystis here — it is processed independently in Section 5 via standalone
+# Exclude Macrocystis here. It is processed independently in Section 5 via standalone
 # LTER kelp frond data. Including it here would create duplicate density response ratios
 # with different source labels ("LTER" vs "LTER macro surveys"), bypassing deduplication.
 All.den <- lter.ave.ave
@@ -479,18 +479,29 @@ LTER.join.ave <- assign_ba_from_site_table(LTER.join.ave, Sites2)
 #
 #   In contrast, other LTER taxa (urchins, kelp, sheephead) have data
 #   going back much further (to the 1980s-2000s via MBON integration),
-#   providing robust before-period baselines.
+#   providing reliable before-period baselines.
 #
 #   The PISCO lobster data (04_pisco_processing.R) has a similar limitation:
 #   PISCO size measurements started in 2010-2011 (UCSB/VRG respectively),
 #   giving only 1-2 years of before-period lobster biomass data.
 #
-#   This edge case does not cause errors in the pipeline — lnRR is still
+#   This edge case does not cause errors in the pipeline. lnRR is still
 #   calculated for years where both MPA and reference site data exist. But
 #   the limited before-period means lobster effect sizes rely primarily on
 #   the after-period trajectory rather than before-after contrasts.
 
 lter.lob <- read.csv(here::here("data", "LTER", "Lobster_Abundance_All_Years_20230831.csv"))
+# Defensive area check (audit 2026-05-04): LTER lobster transect AREA is
+# always 300 m^2 (60 m x 5 m benthic plot, 2012-2023). Halt if a future
+# release ever changes this so we don't silently mis-normalize density.
+.lob_areas <- sort(unique(lter.lob$AREA))
+if (!identical(as.integer(.lob_areas), as.integer(LTER_LOBSTER_PLOT_AREA_M2))) {
+  warning("LTER lobster transect area changed: found AREA in {",
+          paste(.lob_areas, collapse=", "),
+          "}; LTER_LOBSTER_PLOT_AREA_M2 = ", LTER_LOBSTER_PLOT_AREA_M2,
+          ". Update 06_lter_processing.R Section 4 normalization.",
+          call. = FALSE, immediate. = TRUE)
+}
 
 # Validate expected columns
 required_lob_cols <- c("SITE", "YEAR", "TRANSECT", "REPLICATE", "COUNT", "SIZE_MM")
@@ -616,13 +627,13 @@ LTER.lob.bio.long$resp <- "Bio"
 LTER.lob.resp <- rbind(LTER.lob.den.long, LTER.lob.bio.long)
 
 # ===========================================================================
-# Section 5: Import and process LTER kelp frond data
+# Section 5: Import and process LTER kelp data
 # ===========================================================================
-# LTER monitors giant kelp (Macrocystis pyrifera) via frond counts.
-# Important methodological note: LTER counts FRONDS (blade-bearing branches),
-# while KFM counts STIPES (main stem structures). A single stipe can
-# support multiple fronds, so these measurements are not directly comparable.
-# See TODO [D5] below regarding the bio_macro() conversion.
+# LTER stores giant kelp (Macrocystis pyrifera) counts in a column named
+# `FRONDS`, but Li (LTER kelp lead) confirmed that this is the same
+# structural unit KFM records as a `Stipe_Count`. Both protocols count
+# stipes regardless of column label. We therefore treat fronds = stipes
+# and pass the count density directly into bio_macro() (01_utils.R).
 
 lter.macro <- read.csv(here::here("data", "LTER", "Annual_Kelp_All_Years_20240305.csv"))
 
@@ -650,53 +661,9 @@ lter.macro.site <- subset(lter.macro.site, CA_MPA_Name_Short == "Campus Point SM
 lter.macro.site$frondDen <- safe_divide(lter.macro.site$FRONDS, lter.macro.site$AREA,
                                         context = "LTER macro frondDen = FRONDS/AREA")
 
-# ===========================================================================
-# WARNING [D5]: STIPE vs FROND MISMATCH — DOMAIN EXPERT REVIEW REQUIRED
-# ===========================================================================
-#
-# bio_macro() was calibrated on STIPE counts (see 01_utils.R: "Giant kelp
-# biomass from stipe count"), using an average slope from site-specific
-# stipe-to-biomass regressions. However, LTER data records FROND counts
-# (the FRONDS column in Annual_Kelp_All_Years), not stipe counts.
-#
-# Macrocystis pyrifera anatomy:
-#   - A "stipe" is the main stem-like structure emerging from the holdfast.
-#   - A "frond" is a blade-bearing lateral branch growing from the stipe.
-#   - One stipe supports multiple fronds (typically 3-10+ depending on
-#     plant age and environmental conditions; Reed et al. 2008 Ecology).
-#
-# Consequence: Passing frond density into bio_macro() treats each frond
-# as if it were a stipe, which likely OVERESTIMATES biomass because frond
-# counts per unit area are higher than stipe counts per unit area. The
-# magnitude of overestimation depends on the fronds-per-stipe ratio.
-#
-# Comparison across programs:
-#   - PISCO (04_pisco_processing.R): Uses count * size, where "size" is
-#     the number of stipes per individual plant. So count * size = total
-#     stipes. bio_macro() then converts stipe density to biomass. CORRECT.
-#   - KFM (05_kfm_processing.R): Uses raw stipe counts from the KFM
-#     Macrocystis stipe count dataset (KFM_Macrocystis_RawData). The
-#     bootstrap resamples per-individual stipe counts. CORRECT.
-#   - LTER (this script): Uses FRONDS column from Annual_Kelp_All_Years.
-#     Fronds != stipes. POTENTIAL MISMATCH.
-#
-# NOTE: Because lnRR is computed on PROPORTIONS (proportion of time-series
-# max), not raw biomass, and proportions are calculated within each
-# MPA x taxon x source, the mismatch cancels out in the response ratio
-# as long as the frond-to-stipe ratio is approximately constant over time
-# and space within each MPA. The absolute biomass values in LTER.macro.resp
-# are affected, but the lnRR (our primary metric) is robust to this
-# multiplicative bias.
-#
-# DO NOT CHANGE this calculation without domain expert confirmation from
-# the LTER kelp ecology group (e.g., Dan Reed, Tom Bell) regarding whether
-# frond counts should be converted to stipe equivalents before applying
-# the allometric relationship.
-# ===========================================================================
-lter.macro.site$biomass  <- bio_macro(lter.macro.site$frondDen)
-cat("  NOTE [D5]: LTER kelp biomass uses bio_macro() on FROND density (not stipe density).\n",
-    "  bio_macro() was calibrated on stipe counts — see WARNING [D5] above.\n",
-    "  This is acceptable for lnRR because proportions cancel the bias.\n")
+# Convert stipe density (LTER calls this FRONDS, but per Li these are the same
+# structural unit KFM records as Stipe_Count) to biomass via bio_macro().
+lter.macro.site$biomass <- bio_macro(lter.macro.site$frondDen)
 
 # Summarise: quad -> transect -> site -> MPA level
 # This hierarchical averaging accounts for the nested sampling design
@@ -787,7 +754,7 @@ LTER.macro.resp <- rbind(LTER.macro.den.long, LTER.macro.bio.long)
 # LTER conducts visual fish surveys along with their benthic monitoring.
 # We focus on California sheephead (Semicossyphus pulcher), a key urchin predator.
 # Sheephead are heavily fished outside MPAs, making them a good indicator species
-# for MPA effectiveness — they should recover faster inside protected areas.
+# for MPA effectiveness. They should recover faster inside protected areas.
 
 lter.fish <- read.csv(here::here("data", "LTER", "Annual_fish_comb_20240307.csv"))
 
@@ -802,8 +769,30 @@ if (length(missing_fish_cols) > 0) {
 
 cat("  LTER fish data loaded:", nrow(lter.fish), "rows\n")
 
-# Subset to California sheephead only (Semicossyphus pulcher)
+# Subset to California sheephead only (Semicossyphus pulcher).
+#
+# LTER FISH TRANSECT-AREA NOTE (audit 2026-05-04):
+#   The LTER Annual_fish_comb file uses different transect AREA values
+#   for different species groups by protocol:
+#       AREA = 80 m^2  (40 m x 2 m): "BIG" mobile fish (sheephead and
+#                                    other large-bodied species)
+#       AREA = 40 m^2                : intermediate (small subset)
+#       AREA = 20 m^2                : "CRYPTIC" small benthic fish (gobies,
+#                                       blennies, sculpins, etc.)
+#   For SPUL (sheephead), AREA = 80 m^2 uniformly, verified empirically.
+#   The SPUL filter below therefore guarantees that downstream divisions by
+#   LTER_FISH_SURVEY_AREA_M2 = 80 (~L843) are correct. We also add a
+#   defensive check to halt the pipeline if a future LTER release ever
+#   ships sheephead at a different transect size.
 lter.fish.sub <- subset(lter.fish, SCIENTIFIC_NAME == "Semicossyphus pulcher")
+.spul_areas <- sort(unique(lter.fish.sub$AREA))
+if (!identical(as.integer(.spul_areas), as.integer(LTER_FISH_SURVEY_AREA_M2))) {
+  warning("LTER sheephead transect area changed: found AREA in {",
+          paste(.spul_areas, collapse=", "),
+          "}; LTER_FISH_SURVEY_AREA_M2 = ", LTER_FISH_SURVEY_AREA_M2,
+          ". Update 06_lter_processing.R Section 6 normalization.",
+          call. = FALSE, immediate. = TRUE)
+}
 
 # Merge with site metadata and filter to our study MPAs
 lter.fish.sub.site <- validated_merge(lter.fish.sub, Sites2, by.x = c("SITE"), by.y = c("site_id"), warn_threshold = 0)

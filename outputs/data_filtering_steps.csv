@@ -1,6 +1,6 @@
 Step,Description,N_rows
 01_Raw_combined,"All response ratio data combined from LTER, PISCO, KFM",3871
 02_Sheephead_only_MPAs_removed,"Removed sheephead-only MPAs: Blue Cavern Onshore SMCA, Painted Cave SMCA, Dana Point SMCA, Farnsworth Onshore SMCA, Point Dume SMR, Cat Harbor SMCA, Swamis SMCA, Anacapa Island SMCA, Long Point SMR, Point Dume SMCA, Santa Barbara Island SMR",3175
-03_Sheephead_MPAs_readded_for_SPUL,Re-included 407 rows from SHEEPHEAD_REINCLUSION_MPAS + SBI SMR,3582
+03_Sheephead_MPAs_readded_for_SPUL,Re-included 377 rows from SHEEPHEAD_REINCLUSION_MPAS + SBI SMR,3552
 04_Duplicates_removed,Removed 260 duplicate MPA/year/taxa/resp/source rows,260
-05_Final_RR_dataset,Final dataset for effect size calculation,3322
+05_Final_RR_dataset,Final dataset for effect size calculation,3292

@@ -4,12 +4,12 @@
 #
 # PURPOSE:
 #   Utility functions and constants for data processing (scripts 03-07).
-#   This is a subset of the analysis repo's utils — only functions needed
+#   This is a subset of the analysis repo's utils. Only functions needed
 #   for data import, biomass conversion, bootstrap resampling, response
 #   ratio calculation, and site exclusion logic.
 #
 # AUTHORS: Emily Donham & Adrian Stier
-# PROJECT: CA MPA Kelp Forest — Data Processing
+# PROJECT: CA MPA Kelp Forest. Data Processing
 # =============================================================================
 
 
@@ -127,6 +127,13 @@ assign_ba_from_site_table <- function(df, site_table, mpa_col = "CA_MPA_Name_Sho
 # Each function takes a size measurement and returns biomass in grams.
 # Coefficients are from published allometric relationships for each species.
 
+# NOTE ON ALLOMETRIC SOURCES (per Emily Donham, 2026-04 review):
+#   The length-weight / size-biomass relationships used below come from the
+#   SBC LTER's calibration work (compiled and provided by the LTER team), not
+#   from the originally cited textbooks/papers. The original textbook
+#   citations (Barsky 2001, Ebert 2010, Cowen 1990) are retained here only as
+#   the published basis the LTER calibrations build on.
+
 #' @title Lobster biomass from carapace length
 #' @description Allometric conversion of California spiny lobster
 #'   (\emph{Panulirus interruptus}) carapace length to biomass (grams)
@@ -135,7 +142,7 @@ assign_ba_from_site_table <- function(df, site_table, mpa_col = "CA_MPA_Name_Sho
 #'   NOTE: PISCO raw data stores carapace length in cm; the conversion to mm
 #'   happens upstream in 04_pisco_processing.R (size * 10).
 #' @return Numeric vector of biomass estimates (grams).
-#' @source Barsky (2001) California Dept of Fish and Game, Lobster Assessment
+#' @source SBC LTER allometric calibration (cf. Barsky 2001, CDFG Lobster Assessment).
 bio_lobster <- function(size) {
   0.001352821 * (size) ^ 2.913963113
 }
@@ -146,7 +153,7 @@ bio_lobster <- function(size) {
 #'   using a power-law relationship: W = a * D^b.
 #' @param size Numeric vector of test diameters (mm).
 #' @return Numeric vector of biomass estimates (grams).
-#' @source Ebert (2010) Sea Urchins: Biology and Ecology, Academic Press
+#' @source SBC LTER allometric calibration (cf. Ebert 2010, Sea Urchins).
 bio_redurch <- function(size) {
   0.00059 * (size) ^ 2.917
 }
@@ -157,7 +164,7 @@ bio_redurch <- function(size) {
 #'   using a power-law relationship: W = a * D^b.
 #' @param size Numeric vector of test diameters (mm).
 #' @return Numeric vector of biomass estimates (grams).
-#' @source Ebert (2010) Sea Urchins: Biology and Ecology, Academic Press
+#' @source SBC LTER allometric calibration (cf. Ebert 2010, Sea Urchins).
 bio_purpurch <- function(size) {
   0.00059 * (size) ^ 2.870
 }
@@ -168,24 +175,87 @@ bio_purpurch <- function(size) {
 #'   using a power-law relationship: W = a * L^b.
 #' @param size_cm Numeric vector of total lengths (cm).
 #' @return Numeric vector of biomass estimates (grams).
-#' @source Cowen (1990) Environmental Biology of Fishes
+#' @source SBC LTER allometric calibration (cf. Cowen 1990, Env. Biol. Fish.).
 bio_sheephead <- function(size_cm) {
   SHEEPHEAD_BIOMASS_ALLOMETRIC_A * (size_cm) ^ SHEEPHEAD_BIOMASS_ALLOMETRIC_B
 }
 
-# Average slope from 6 site-specific stipe-to-biomass regressions for giant kelp.
-# Used in bio_macro() to convert stipe counts to biomass.
+# =============================================================================
+# TODO [MACRO_AVE_SLOPE provenance: UNRESOLVED]
+# =============================================================================
+# These six values do NOT match either of the two candidate published sources.
+# Provenance is an open issue.
+#
+# The values:
+#   c(0.10386, 0.10103, 0.09267, 0.09204, 0.08054, 0.08505), mean = 0.0925
+#
+# Originally documented in the archived pipeline `pBACIPS_PISCO_V10.R` L674
+# as "Slopes from May-Oct from LTER". A 2026-05-05 audit of both candidate
+# published sources confirmed the values are NOT in either paper:
+#
+#   1. Reed, D.C., Rassweiler, A. & Arkema, K.K. (2009). Density derived
+#      estimates of standing crop and net primary production in the giant
+#      kelp Macrocystis pyrifera. Marine Biology 156: 2077-2083.
+#      DOI: 10.1007/s00227-009-1238-6 (open access via PMC3873067).
+#      Publishes a SINGLE pooled slope of 0.08 (Fig. 2b: y = 0.08x + 0.01,
+#      r^2 = 0.79), three sites only (Mohawk, Arroyo Burro, Arroyo Quemado),
+#      year-round calibration (Jan 2003 - Dec 2008). NO per-site slopes,
+#      NO May-Oct subset, NONE of our six values appear.
+#
+#   2. Rassweiler, A., Reed, D.C., Harrer, S.L. & Nelson, J.C. (2018).
+#      Improved estimates of net primary production, growth, and standing
+#      crop of Macrocystis pyrifera in Southern California. Ecology
+#      99(9): 2132. DOI: 10.1002/ecy.2440.
+#      Updated Reed 2009. Three sites only. Slope range across all 7 model
+#      variants per site = 0.00029 - 0.09907 (so two of our six values
+#      exceed this range). Calibration uses every month from May 2002 -
+#      Dec 2017 (the full annual cycle, NOT a May-Oct subset). The "May"
+#      anchor is just when SBC LTER kelp monitoring began.
+#
+# Most likely actual source: an internal SBC LTER calibration spreadsheet
+# (per-month or per-section slopes computed from the same raw data behind
+# the published papers but never formally published).
+#
+# Three resolution options:
+#   (a) Replace MACRO_AVE_SLOPE with Reed 2009's pooled slope = 0.08, citing
+#       Reed et al. 2009. ~14% smaller absolute biomass values.
+#   (b) Replace with Rassweiler 2018's updated pooled slope (~0.187 dry-mass
+#       equivalent from Slope = 1.99495 wet kg per frond x 0.094 wet/dry
+#       ratio), citing Rassweiler 2018. ~2x larger absolute biomass values.
+#   (c) Locate the original SBC LTER calibration file the six values came
+#       from and document it as the source.
+#
+# Result-impact note: proportion-based lnRR is invariant under multiplicative
+# scaling, so meta-analysis effect sizes are unchanged regardless of which
+# option we pick. Only absolute biomass values in
+# `output/harmonized/harmonized_raw_responses.csv` shift.
+# =============================================================================
 MACRO_AVE_SLOPE <- mean(c(0.10386, 0.10103, 0.09267, 0.09204, 0.08054, 0.08505))
+
+# Runtime flag so the pipeline announces the open provenance issue every run.
+# Suppress with options(macro_ave_slope_warn = FALSE) once resolved.
+if (!isFALSE(getOption("macro_ave_slope_warn", TRUE))) {
+  packageStartupMessage(
+    "OPEN ISSUE [MACRO_AVE_SLOPE]: provenance of the six slope values is ",
+    "unresolved (audited 2026-05-05; not in Reed 2009 or Rassweiler 2018). ",
+    "See `01_utils.R` TODO block above MACRO_AVE_SLOPE for resolution options."
+  )
+}
 
 #' @title Giant kelp biomass from stipe count
 #' @description Converts \emph{Macrocystis pyrifera} stipe counts to biomass
-#'   (grams) using the average slope from site-specific stipe-biomass
-#'   regressions (MACRO_AVE_SLOPE), multiplied by 1000 to convert kg to g.
+#'   (grams) using MACRO_AVE_SLOPE (mean of six SBC-LTER-derived slopes;
+#'   provenance is an open issue. See TODO block above MACRO_AVE_SLOPE
+#'   definition), multiplied by 1000 to convert kg to g.
 #' @param stipe Numeric vector of stipe counts (or stipe density per m^2).
-#'   This function was calibrated on STIPE counts, not frond counts.
-#'   PISCO and KFM data pass stipe counts (correct).
-#'   LTER data passes frond density — see WARNING [D5] in 06_lter_processing.R
-#'   for details on this known mismatch and why it is acceptable for lnRR.
+#'   PISCO records stipes per individual; KFM records per-plant stipe counts
+#'   in the KFM_Macrocystis_RawData file. LTER stores its counts in a column
+#'   named FRONDS, but per Li (LTER) these are the same structural unit
+#'   (stipes = fronds for this purpose), so all three programs feed compatible
+#'   counts into bio_macro().
+#' @note TODO: the MACRO_AVE_SLOPE provenance is unresolved as of 2026-05-05.
+#'   See the TODO comment block above the constant definition for the three
+#'   resolution options (a/b/c) and the impact analysis.
 #' @return Numeric vector of biomass estimates (grams).
 bio_macro <- function(stipe) {
   stipe * MACRO_AVE_SLOPE * 1000
@@ -236,7 +306,7 @@ bio_macro <- function(stipe) {
 #'   \describe{
 #'     \item{biomass}{Numeric; mean total biomass across bootstrap resamples.}
 #'     \item{se}{Numeric; standard deviation of total biomass across resamples
-#'       (bootstrap SE). See VARIANCE PROPAGATION NOTE above — this SE is not
+#'       (bootstrap SE). See VARIANCE PROPAGATION NOTE above. This SE is not
 #'       carried through to the final meta-analysis variance.}
 #'     \item{count}{Integer; the input count value.}
 #'   }
@@ -245,12 +315,12 @@ bootstrap_biomass <- function(count, size_freq_indices, size_freq_table,
   n <- count
   t2 <- size_freq_indices
 
-  # Case 1: count is NA — cannot estimate biomass
+  # Case 1: count is NA, cannot estimate biomass
   if (is.na(n)) {
     return(list(biomass = NA, se = NA, count = n))
   }
 
-  # Case 2: count is zero — biomass is definitionally zero
+  # Case 2: count is zero, biomass is definitionally zero
   if (n == 0) {
     return(list(biomass = 0, se = 0, count = 0))
   }
@@ -260,7 +330,7 @@ bootstrap_biomass <- function(count, size_freq_indices, size_freq_table,
     return(list(biomass = NA, se = NA, count = n))
   }
 
-  # Case 4: count > 0 and size-frequency data exists — run bootstrap
+  # Case 4: count > 0 and size-frequency data exists, run bootstrap
   a <- numeric(0)
   for (j in seq_along(t2)) {
     reps <- rep(size_freq_table$size[t2[j]], size_freq_table$count[t2[j]])
@@ -277,7 +347,7 @@ bootstrap_biomass <- function(count, size_freq_indices, size_freq_table,
     s[k, ] <- sample(a, n, replace = TRUE)
   }
 
-  # Direct vectorized call — biomass_fun is already vectorized, so applying
+  # Direct vectorized call. biomass_fun is already vectorized, so applying
   # it to the full matrix is equivalent to apply(s, c(1,2), biomass_fun)
   # but substantially faster.
   s_bio <- biomass_fun(s)
@@ -304,23 +374,23 @@ bootstrap_biomass <- function(count, size_freq_indices, size_freq_table,
 #'     \item{none}{No correction applied.}
 #'   }
 #'
-#' METHODOLOGICAL NOTE — PROPORTION-BASED lnRR:
+#' METHODOLOGICAL NOTE: PROPORTION-BASED lnRR:
 #'   This project computes log response ratios on PROPORTIONS of time-series
 #'   maxima rather than on raw density or biomass values. This is non-standard
 #'   compared to typical meta-analysis practice (e.g., Hedges et al. 1999),
 #'   where lnRR = ln(mean_treatment / mean_control) uses raw means.
 #'
 #'   Rationale for the proportion approach:
-#'   (1) Standardization across monitoring programs — PISCO, KFM, and LTER
+#'   (1) Standardization across monitoring programs. PISCO, KFM, and LTER
 #'       use different transect areas, survey methods, and spatial extents.
 #'       Raw density/biomass values are not directly comparable across
 #'       programs. Proportions normalize each MPA-taxon time series to a
 #'       common 0-1 scale, making cross-program effect sizes comparable.
-#'   (2) Focus on relative change — The scientific question is whether
+#'   (2) Focus on relative change. The scientific question is whether
 #'       MPA sites changed more (or less) relative to their own baseline
 #'       maximum than reference sites. Proportions capture this relative
 #'       change while removing absolute scale differences.
-#'   (3) Precedent — Proportion-based approaches are used in BACI designs
+#'   (3) Precedent. Proportion-based approaches are used in BACI designs
 #'       where absolute values differ across sites; see Thiault et al.
 #'       (2017) Methods in Ecology and Evolution for the pBACIPS framework.
 #'
@@ -384,7 +454,7 @@ calculate_proportions <- function(df, value_col, correction_method = "adaptive")
         } else {
           # max_val is non-finite or <= 0: all values are NA, zero, or negative
           warning("calculate_proportions(): MPA '", mpa, "' taxon '", taxon,
-                  "' has max_val=", max_val, " — setting Prop and PropCorr to NA.",
+                  "' has max_val=", max_val, ", setting Prop and PropCorr to NA.",
                   call. = FALSE)
           df$Prop[idx] <- NA_real_
           df$PropCorr[idx] <- NA_real_
@@ -559,12 +629,20 @@ SHEEPHEAD_ONLY_MPAS <- c(
   "Santa Barbara Island SMR"
 )
 
+# Curated subset of SHEEPHEAD_ONLY_MPAS re-included for sheephead-specific
+# analyses. Inclusion criterion: regulations protect SHEEPHEAD specifically
+# (i.e., no take of finfish at the SMCA), so the MPA functions like an SMR
+# from sheephead's perspective.
+#
+# Removed 2026-04 (per Emily review):
+#   - "Dana Point SMCA": permits take of lobster, finfish, and urchins,
+#     so not a sheephead refuge in any meaningful sense.
+#   - "Cat Harbor SMCA": permits commercial take of lobster and urchin and
+#     recreational take of finfish (including sheephead).
 SHEEPHEAD_REINCLUSION_MPAS <- c(
   "Blue Cavern Onshore SMCA",
-  "Dana Point SMCA",
   "Farnsworth Onshore SMCA",
   "Swamis SMCA",
-  "Cat Harbor SMCA",
   "Long Point SMR"
 )
 
@@ -800,7 +878,12 @@ validate_and_subset_columns <- function(df, required_cols, context = "", drop_ex
 # for consistency with how PISCO and KFM exclusions are handled.
 
 #' LTER site exclusions
-#' Arroyo Honda excluded due to data quality issues per Bob Miller (LTER PI).
+#' Arroyo Hondo (AHND / a-l-02) is excluded because the site does not meet
+#' the kelp-forest habitat criteria for this analysis: it is dominated by
+#' surfgrass / sand with sparse, ephemeral kelp coverage and lacks a
+#' persistent giant-kelp forest community, so it is not a valid kelp-forest
+#' control or treatment site for the trophic-cascade question. (Updated
+#' 2026-04 from earlier "data quality" framing, per Emily review.)
 #' Two IDs because MBON uses "a-l-02" while standalone LTER CSVs use "AHND".
 EXCLUDED_LTER_SITES <- c("a-l-02")
 EXCLUDED_LTER_SITE_CODES <- c("AHND")

@@ -19,8 +19,28 @@
 # EXCLUSION LOGIC:
 #   Some MPAs only have data for certain taxa. We:
 #   - Exclude MPAs from SHEEPHEAD_ONLY_MPAS list from main analysis
-#   - Re-include those MPAs specifically for sheephead analysis
-#   - This prevents sheephead from being over-represented in cross-taxa summaries
+#   - Re-include a curated subset (SHEEPHEAD_REINCLUSION_MPAS in 01_utils.R)
+#     specifically for sheephead-targeted analyses, restricted to MPAs whose
+#     regulations actually protect sheephead (i.e., no take of finfish)
+#   - This prevents sheephead from being over-represented in cross-taxa summaries.
+#
+# WHAT "CROSS-TAXA SUMMARIES" MEANS HERE (per Emily review, 2026-04):
+#   Some downstream summaries (e.g., the joint multilevel meta-analysis in
+#   09_meta_analysis.R, and the meta-regressions in Table 3) treat each
+#   MPA x taxon row as one observation. If we kept SHEEPHEAD_ONLY_MPAs in
+#   that pool, sheephead would have ~12 extra MPAs the other taxa do not,
+#   skewing the cross-taxa effect-size pool toward sheephead and
+#   over-weighting predator effects. Removing them from the main pool and
+#   re-including them only for the sheephead-targeted analyses keeps the
+#   cross-taxa pool balanced.
+#
+#   SEPARATE CONCERN (kelp / Landsat over-representation):
+#   Kelp has both in-water (PISCO, KFM, LTER) AND satellite (Landsat) sources,
+#   which means the kelp pool can have many more observations than other
+#   taxa. The joint meta-analysis handles this with `~Taxa - 1` (each taxon
+#   gets its own intercept) and the `(1|Source)` random effect, so kelp's
+#   extra Landsat replicates do not pull the other taxa's estimates. They
+#   do, however, give kelp a tighter CI than other taxa.
 #
 # INPUTS:
 #   Response ratio objects:
@@ -60,7 +80,7 @@ cat("\n=== 07_combine_and_export.R ===\n")
 # - kfm.fish (KFM sheephead)
 # Now we combine them into one master dataset for the meta-analysis.
 #
-# METHODOLOGICAL NOTE — PROPORTION-BASED lnRR:
+# METHODOLOGICAL NOTE: PROPORTION-BASED lnRR:
 # All lnRR values in these dataframes were computed on zero-corrected
 # PROPORTIONS (PropCorr), not on raw density or biomass values.
 # Each processing script (04-06) called calculate_proportions() to normalize
@@ -86,7 +106,7 @@ cat("\n=== 07_combine_and_export.R ===\n")
 #   - Swath.join.sub has site_designation
 #   - kfm.fish has sample_method
 #   - KFM.join.ave has area
-# Use explicit column selection for robustness.
+# Use explicit column selection.
 
 # Standard columns for all response ratio dataframes
 RR_STANDARD_COLS <- c("CA_MPA_Name_Short", "year", "y", "lnDiff", "mpa", "reference",
@@ -296,7 +316,7 @@ if (n_dups_resp > 0) {
 All.Resp.sub <- assign_ba_from_site_table(All.Resp.sub, Site)
 All.Resp.sub <- assign_time_from_site_table(All.Resp.sub, Site)
 
-# Keep only essential columns (explicit selection for robustness)
+# Keep only essential columns (explicit selection)
 RESP_ESSENTIAL_COLS <- c("CA_MPA_Name_Short", "year", "taxon_name", "source", "status", "value", "resp", "BA", "time")
 All.Resp.sub <- All.Resp.sub[, RESP_ESSENTIAL_COLS]
 
@@ -398,18 +418,30 @@ bootstrap_report <- data.frame(
             "Kelp (M. pyrifera)",
             "Urchins (S. purpuratus, M. franciscanus)",
             "Lobster (P. interruptus)"),
-  Size_Data_Source = c("Own (PISCO size-frequency with 25mm filter)",
-                       "Own (PISCO VRG size-frequency)",
-                       "Cross-program (PISCO SizeFreq.Urch.OG, no 25mm filter)",
-                       "Own (KFM stipe counts per individual)",
-                       "Cross-program (PISCO SizeFreq.Urch.OG, no 25mm filter)",
+  # Verified against ALL_sizefreq_2024.csv `method` column (audit 2026-05-04):
+  # For urchin classcodes (MESFRA, STRPUR) the size-frequency pool is
+  # PISCO-only: 3,848 obs from SBTL_SIZEFREQ_PISCO (UCSB) plus 16,810 obs
+  # from SBTL_SIZEFREQ_VRG, zero obs labeled SBTL_SIZEFREQ_KFM or
+  # SBTL_SIZEFREQ_LTER. Both KFM and LTER urchin biomass therefore rely on
+  # PISCO size data as a CROSS-PROGRAM bootstrap source.
+  #
+  # (Emily's 2026-04 review noted that KFM internally collects separate
+  # site-level urchin size-frequency surveys; those files are not currently
+  # ingested into ALL_sizefreq_2024.csv. If/when they are added (under
+  # method = SBTL_SIZEFREQ_KFM), the bootstrap will pick them up
+  # automatically and the cross-program assumption for KFM will weaken.)
+  Size_Data_Source = c("Own (PISCO size-frequency, 25 mm filter applied)",
+                       "Own (PISCO VRG size-frequency, roving-diver protocol)",
+                       "Cross-program (PISCO size-frequency pool, no 25 mm filter; KFM-internal size files not currently ingested)",
+                       "Own (KFM per-plant stipe counts, KFM_Macrocystis_RawData)",
+                       "Cross-program (PISCO size-frequency pool, no 25 mm filter; LTER does not collect urchin sizes)",
                        "Own (LTER measures carapace length directly)"),
-  Assumption = c("None — native size data",
-                 "None — native size data",
-                 "Assumes PISCO urchin size structure applies to KFM sites",
-                 "None — native stipe count data",
-                 "Assumes PISCO urchin size structure applies to LTER sites",
-                 "None — native size data"),
+  Assumption = c("None: native size data",
+                 "None: native size data",
+                 "Cross-program: assumes the PISCO size-frequency pool is representative of urchins counted by KFM at the same MPA/year. Reasonable because PISCO and KFM sample many overlapping or near-by sites in the Channel Islands, but a known cross-program assumption.",
+                 "None: native stipe count data",
+                 "Cross-program: assumes the PISCO size-frequency pool is representative of urchins at LTER sites in the same MPA/year.",
+                 "None: native size data"),
   stringsAsFactors = FALSE
 )
 

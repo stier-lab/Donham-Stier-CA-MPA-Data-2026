@@ -4,8 +4,8 @@
 #
 # PURPOSE:
 #   Define named constants for all hardcoded values used across the analysis
-#   pipeline. Centralizing these values improves maintainability and makes
-#   assumptions explicit.
+#   pipeline. Centralizing these values keeps assumptions explicit and makes
+#   maintenance easier.
 #
 # USAGE:
 #   source(here::here("code", "R", "00c_analysis_constants.R"))
@@ -34,9 +34,15 @@
 #' SHARED: Also defined in analysis repo 00c_analysis_constants.R
 PISCO_SWATH_AREA_M2 <- 60
 
-#' KFM quadrat area (2 m^2)
-#' Used in: 05_kfm_processing.R (density normalization for KFM quadrat counts)
-#' Rationale: Standard NPS Kelp Forest Monitoring 1m x 2m quadrat protocol
+#' KFM quadrat area (default = 2 m^2 for urchins from 1985 onward)
+#' Used in: 05_kfm_processing.R (legacy default; current code uses row-level `area`)
+#' Rationale: KFM quadrat protocol changed through time:
+#'   - Urchins: 1 m^2 in 1982-1984, then 2 m^2 from 1985 onward
+#'   - Macrocystis: 1 m^2 (1982-1984), 2 m^2 (1985+), 10 m^2 (1996+); analysis
+#'     uses the 10 m^2 subset only (filtered in 05_kfm_processing.R Section 11)
+#' Density normalization in 05_kfm_processing.R now divides by the row-level
+#' `area` column rather than this constant, so quad-size changes are handled
+#' correctly. Constant retained for documentation/back-compat.
 #' SHARED: Also defined in analysis repo 00c_analysis_constants.R
 KFM_QUAD_AREA_M2 <- 2
 
@@ -46,9 +52,18 @@ KFM_QUAD_AREA_M2 <- 2
 #' SHARED: Also defined in analysis repo 00c_analysis_constants.R
 LTER_LOBSTER_PLOT_AREA_M2 <- 300
 
-#' LTER fish survey transect area (80 m^2)
-#' Used in: 06_lter_processing.R (density normalization for LTER fish transects)
-#' Rationale: SBC LTER fish survey protocol (40m x 2m swath)
+#' LTER fish survey transect area (80 m^2) for the "BIG" fish protocol
+#' Used in: 06_lter_processing.R (density normalization for LTER sheephead)
+#' Rationale: SBC LTER fish survey protocol uses TWO transect sizes:
+#'   - 80 m^2 (40 m x 2 m) for BIG mobile fish (sheephead and other
+#'     large-bodied species, 60,304 obs in Annual_fish_comb_20240307.csv)
+#'   - 20 m^2 for CRYPTIC small benthic fish (gobies, blennies, sculpins,
+#'     etc.: 32,877 obs)
+#'   - 40 m^2 for an intermediate subset (630 obs)
+#' Sheephead (the only LTER fish species used in this analysis) is uniformly
+#' surveyed at 80 m^2, verified against AREA column on 2026-05-04. A
+#' defensive check in 06_lter_processing.R Section 6 will warn if a future
+#' LTER data release ever changes this.
 #' SHARED: Also defined in analysis repo 00c_analysis_constants.R
 LTER_FISH_SURVEY_AREA_M2 <- 80
 
@@ -93,10 +108,15 @@ VRG_LOBSTER_SIZE_START_YEAR <- 2011
 
 #' KFM RDFC (roving diver fish count) survey methodology start year
 #' Used in: 05_kfm_processing.R (filtering KFM fish counts to standardized protocol)
-#' Rationale: KFM switched to the RDFC survey method in 2003. Earlier surveys
-#' used a different protocol and are not directly comparable.
+#' Rationale: KFM implemented the Roving Diver Fish Count protocol in 1996
+#' (Davis et al. 1997, Kelp Forest Monitoring Handbook Vol 1, p.48). The
+#' earlier Visual Fish Transect protocol started in 1985 with a transect-
+#' length change in 1996 (3 m x 2 m x 100 m -> 3 m x 2 m x 50 m). The two
+#' methods coexist post-1996. We previously had this constant set to 2003
+#' (incorrect); corrected 2026-05-04 after a metadata audit against the
+#' NPS protocol manual at https://irma.nps.gov/DataStore/DownloadFile/485444.
 #' SHARED: Also defined in analysis repo 00c_analysis_constants.R
-KFM_RDFC_SURVEY_START_YEAR <- 2003
+KFM_RDFC_SURVEY_START_YEAR <- 1996
 
 #' Minimum years of data required for site inclusion
 #' Used in: 07_combine_and_export.R (filtering sites with insufficient data)
@@ -207,7 +227,7 @@ NLS_NORMALITY_THRESHOLD <- 0.01
 
 #' Cook's distance threshold numerator for meta-analysis outlier detection
 #' Used in: 09_meta_analysis.R, 13_additional_analyses.R (analysis repo)
-#' Rationale: Standard rule — outliers have Cook's D > 4/n (Bollen & Jackman 1990)
+#' Rationale: Standard rule. Outliers have Cook's D > 4/n (Bollen & Jackman 1990)
 #' SHARED: Also defined in analysis repo 00c_analysis_constants.R
 COOKS_DISTANCE_NUMERATOR <- 4
 

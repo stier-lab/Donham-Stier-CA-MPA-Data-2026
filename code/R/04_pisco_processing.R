@@ -22,8 +22,14 @@
 #   - Swath transects: Counts of benthic invertebrates and kelp
 #   - Fish transects: Visual census of reef fish
 #   Two research groups contribute data:
-#   - UCSB (UC Santa Barbara): Started 1999, sizes lobsters directly
-#   - VRG (Vantuna Research Group): Started 2003, uses size frequency
+#   - UCSB (UC Santa Barbara): Started 1999. Lobsters are sized directly on
+#     the swath transect (carapace length measured in situ).
+#   - VRG (Vantuna Research Group): Started 2003. Lobsters are sized via a
+#     separate roving-diver protocol (see L292 below), sometimes on the
+#     swath transect and sometimes off-transect, and biomass is estimated
+#     by bootstrap from the resulting size-frequency pool. UCSB and VRG
+#     therefore handle lobsters differently, and the two are NOT
+#     interchangeable for biomass without going through the bootstrap.
 #
 # INPUTS:
 #   - data/PISCO/MLPA_kelpforest_swath_2024.csv
@@ -77,7 +83,13 @@ Swath.edit <- subset(Swath,
                      campus == "VRG" | (campus == "UCSB" & zone != "DEEP" & zone != "SPECIALO"))
 
 # Import site table (edited so PISCO references run correctly with this script)
-# This table maps PISCO site codes to MPA names and contains metadata about each site
+# This table maps PISCO site codes to MPA names and contains metadata about each site.
+# CAVEAT (Emily review, 2026-04): A small number of MPAs share the same
+# reference site (one reference paired with two MPA sites). This violates the
+# strict pBACIPS one-to-one pairing assumption and can inflate effective
+# sample size if not accounted for. The shared-reference cases are
+# accommodated by `(1|MPA)` and `(1|Source)` random effects in the joint
+# meta-analytic model (09_meta_analysis.R).
 site_table_path <- here::here("data", "PISCO", "master_site_table_Emilyedit.csv")
 sites <- tryCatch(
   read.csv(site_table_path),
@@ -122,7 +134,7 @@ Swath.site.PISCO <- merge(Site.All.Classes, Swath.edit,
                           all = TRUE)
 
 # Zero-fill absent-species count: species not observed at a survey event have NA count
-# after the outer join — replace with 0 (true absence, not missing data)
+# after the outer join. Replace with 0 (true absence, not missing data)
 Swath.site.PISCO$count[is.na(Swath.site.PISCO$count)] <- 0
 
 # Subset summer months only (May-October) for consistency across survey methods
@@ -176,7 +188,7 @@ Swath.ave.site <- merge(Swath.ave, sites.short, by.x = c("site"), by.y = c("site
 # complete.cases() returns TRUE for rows with no NA values in specified column
 Swath.ave.site <- Swath.ave.site[complete.cases(Swath.ave.site$CA_MPA_Name_Short), ]
 
-# Keep only needed columns using dplyr::select for robust column selection
+# Keep only needed columns. dplyr::select uses explicit column names
 # FIXED (2026-02-06): Converted from fragile column indices to explicit column names
 Swath.ave.site.sub <- Swath.ave.site %>%
   dplyr::select(site, year, y, count, CA_MPA_Name_Short, site_designation, site_status, BaselineRegion)
@@ -301,11 +313,28 @@ cat("    UCSB lobster: ", nrow(PANINT.All.sub.mean), " site-year records\n", sep
 cat("  Processing VRG lobster biomass (bootstrap resampling)...\n")
 
 # VRG started measuring sizes in VRG_LOBSTER_SIZE_START_YEAR (2011),
-# stored in a separate size frequency table
+# stored in a separate size frequency table.
+#
+# VRG LOBSTER SIZING PROTOCOL (per Emily, 2026-04 review):
+#   VRG sizes lobsters using a roving-diver approach: divers measure every
+#   lobster they encounter while swimming the survey area. Some of those
+#   measurements occur on the formal swath transect, others occur off-transect
+#   while the diver is moving between points. The result is that the VRG
+#   size-frequency pool represents the lobster size distribution at a site
+#   broadly, but it is NOT a 1:1 match with the swath count column. We
+#   handle this by treating the size-frequency pool as the *empirical
+#   distribution* of lobster sizes at the site/year and bootstrap-resampling
+#   `n = swath count` lengths from it before applying bio_lobster().
+#
+#   This is methodologically defensible because the swath count gives an
+#   unbiased density estimate, and the roving-diver pool gives an unbiased
+#   size-frequency distribution; combining them recovers an unbiased biomass
+#   estimate so long as the size distribution among on- vs off-transect
+#   lobsters is similar (a reasonable assumption for a site-level pool).
 PANINT.VRG <- subset(PANINT, year >= VRG_LOBSTER_SIZE_START_YEAR & campus.x == "VRG")
 
 # Merge size frequency data with site metadata
-# SizeFreq contains measured sizes from a subsample of individuals
+# SizeFreq contains roving-diver measurements (see protocol note above).
 SizeFreq.PANINT.VRG <- merge(SizeFreq, sites.short,
                               by.x = c("site", "site_new", "campus"),
                               by.y = c("site", "site_new", "campus"),
@@ -346,7 +375,7 @@ if (!exists("VRG.PANINT.site") || is.null(VRG.PANINT.site)) {
                 SizeFreq.PANINT.VRG$year == u$year[i] &
                 SizeFreq.PANINT.VRG$site_status == u$site_status[i])
 
-    # Wrap bootstrap in tryCatch for robustness
+    # Wrap bootstrap in tryCatch to capture failures
     result <- tryCatch(
       bootstrap_biomass(count = n,
                         size_freq_indices = t2,
@@ -449,7 +478,7 @@ cat("    VRG lobster: ", nrow(VRG.PANINT), " site-year records\n", sep = "")
 PANINT.all <- rbind(VRG.PANINT, PANINT.All.sub.mean)
 # Reorder columns for downstream rbind with Swath.ave.site.PISCO.subset
 # FIXED: Replaced fragile column indices c(2, 1, 7, 8, 11, 3:6, 10, 9) with explicit column names
-# FIX [C5]: Removed `campus` — Swath.ave.site.PISCO.subset does not have it,
+# FIX [C5]: Removed `campus`. Swath.ave.site.PISCO.subset does not have it,
 # so including it here would cause an rbind column mismatch at line 416.
 # `campus` is not needed downstream (dropped at line 718 column selection).
 PANINT.all <- dplyr::select(PANINT.all,
@@ -471,7 +500,16 @@ Swath.Urchin.Bio <- subset(Swath.site.PISCO.sum.int, y == "STRPURAD" | y == "MES
 URCHINS <- merge(Swath.Urchin.Bio, sites.short, by.x = c("site"), by.y = c("site"),
                  all.x = TRUE)
 
-# Prepare urchin size frequency data
+# Prepare urchin size frequency data.
+# COVERAGE NOTE (Emily review, 2026-04): PISCO urchin size measurements have
+# uneven temporal coverage across campuses. UCSB sized urchins early
+# (2003-2006) and again from 2019 onward, with a long gap in between. VRG
+# has size data from ~2007 onward. Site-years that lack matching size data
+# yield NA biomass and are dropped during the bootstrap merge (see L633
+# "Removed ... site-year-species combos with unsized urchins"). Effectively,
+# PISCO urchin biomass time series begin once size sampling stabilizes
+# (~2012 for VRG, ~2019 for UCSB resumption). Density (count) coverage is
+# unaffected: only biomass is gated by size availability.
 SizeFreq.Urch <- subset(SizeFreq, classcode == "MESFRA" | classcode == "STRPUR")
 SizeFreq.Urch <- dplyr::mutate(SizeFreq.Urch, classcode = dplyr::case_when(
   classcode == "STRPUR"  ~ "STRPURAD",
@@ -494,7 +532,7 @@ SizeFreq.Urch <- merge(SizeFreq.Urch, sites.short,
 # CROSS-PROGRAM NOTE: This 25mm filter is applied ONLY to PISCO's own
 # urchin biomass estimation (in this script). KFM (05_kfm_processing.R)
 # and LTER (06_lter_processing.R) do NOT apply this size filter because:
-#   (1) KFM and LTER do not collect individual urchin sizes — they only
+#   (1) KFM and LTER do not collect individual urchin sizes. They only
 #       record total counts, which may include urchins < 25mm.
 #   (2) To estimate KFM/LTER urchin biomass, we bootstrap-resample from
 #       the UNFILTERED PISCO size-frequency data (SizeFreq.Urch.OG, saved
@@ -550,7 +588,7 @@ if (!exists("Urchin.site") || is.null(Urchin.site)) {
     # Choose biomass function based on species
     bio_fun <- if (u$y[i] == "MESFRAAD") bio_redurch else bio_purpurch
 
-    # Wrap bootstrap in tryCatch for robustness
+    # Wrap bootstrap in tryCatch to capture failures
     result <- tryCatch(
       bootstrap_biomass(count = n,
                         size_freq_indices = t2,
@@ -670,6 +708,17 @@ Swath.PISCO <- dplyr::select(Swath.PISCO.allbio,
 
 cat("  Processing PISCO fish data (sheephead)...\n")
 
+# NOTE: This species-attribute table (PISCO download) supplies the
+# length-weight coefficients (WL_a, WL_b, length conversions) used to convert
+# fish total-length to biomass at L723+ below. It is the per-species,
+# multi-taxon source for PISCO fish biomass, distinct from the single-species
+# scalar functions in 01_utils.R (e.g. bio_sheephead). Both exist by design:
+#   - 01_utils.R bio_sheephead() is used in 06_lter_processing.R, where the
+#     LTER fish dataset only stores raw lengths (no LW table).
+#   - This FishAtt table is used here so that any PISCO fish species (not
+#     just sheephead) can be converted to biomass with the same code path.
+# If we ever drop fish species other than sheephead, the table can be replaced
+# with a hand-coded sheephead row.
 fish_att_path <- here::here("data", "PISCO", "spp_attribute_table_downloaded_9-13-22_SHSPUL.csv")
 FishAtt <- tryCatch(
   read.csv(fish_att_path),
@@ -748,8 +797,31 @@ Fish.sub.site <- dplyr::select(Fish.sub.site,
   TrophicGroup, BroadTrophic, Targeted, biomass,
   CA_MPA_Name_Short, site_designation, site_status, BaselineRegion)
 
-# Remove canopy level (irrelevant for sheephead) and filter to study region
-Fish.sub.site.NOcanopy <- subset(Fish.sub.site, level == "BOT")
+# SHEEPHEAD LEVEL FILTER (Emily review, 2026-04):
+#   PISCO fish surveys record observations at vertical levels:
+#     BOT  (bottom, on/near seafloor)         (dominant for sheephead)
+#     MID  (mid-water column, ~2 m above bot)
+#     CNMD (canopy-mid, just below canopy)
+#     CAN  (canopy, in/at the surface kelp)   (irrelevant for sheephead)
+#
+#   Earlier versions of this pipeline filtered to BOT only (matching
+#   Hamilton et al.'s sheephead analysis) for cross-program consistency
+#   with KFM's bottom-focused fish counts. In practice, sheephead spend
+#   substantial time in the water column and excluding MID/CNMD systematically
+#   under-counts them, particularly inside MPAs where larger fish forage
+#   higher. We therefore now include BOT, MID, and CNMD (everything except
+#   CAN), summing the count at the transect level. This is the per-Emily
+#   protocol-correct filter.
+#
+#   The original BOT-only filter is retained as a sensitivity case via the
+#   SHEEPHEAD_BOT_ONLY toggle below; flip to TRUE to reproduce the older
+#   results for comparison.
+SHEEPHEAD_BOT_ONLY <- FALSE  # FALSE = BOT/MID/CNMD (current); TRUE = BOT only (legacy / sensitivity)
+Fish.sub.site.NOcanopy <- if (isTRUE(SHEEPHEAD_BOT_ONLY)) {
+  subset(Fish.sub.site, level == "BOT")
+} else {
+  subset(Fish.sub.site, level != "CAN")
+}
 Fish.sub.site.NOcanopy <- subset(Fish.sub.site.NOcanopy, BaselineRegion == "SOUTH")
 
 # Sum biomass/counts across levels within each site-year-zone-transect
@@ -788,16 +860,18 @@ Fish.mean.final <- Fish.mean %>%
 # Subset for sheephead (California sheephead, Semicossyphus pulcher)
 Fish.SPUL.All <- subset(Fish.mean.final, classcode == "SPUL")
 
-# TRANSECT AREA NOTE: Sheephead density is divided by PISCO_SWATH_AREA_M2
-# (60 m^2), the same area used for benthic invertebrate swath transects.
-# PISCO fish transects use the same 2m x 30m swath dimensions as benthic
-# transects at most sites (see PISCO protocol documentation). The fish are
-# counted along the same transect corridors as invertebrates, just recorded
-# in a separate dataset with additional size/level information. The "level"
-# column distinguishes bottom (BOT), midwater (MID), and canopy (CAN)
-# observations; we filter to BOT only (line 738 above) for consistency with
-# benthic survey methodology. Using PISCO_SWATH_AREA_M2 here is appropriate
-# because PISCO fish and swath surveys share the same transect footprint.
+# TRANSECT AREA NOTE: Sheephead density is reported per m^2 of seafloor
+# (PISCO_SWATH_AREA_M2 = 60). Each PISCO fish transect surveys a 30 m x 2 m
+# benthic footprint, with separate counts recorded at BOT/MID/CNMD/CAN
+# vertical levels (each level a 30 m x 2 m x ~2 m water-column slab). When
+# SHEEPHEAD_BOT_ONLY is FALSE (the current default), counts from BOT, MID,
+# and CNMD are summed at the transect level above (see Section 9 grouping)
+# and the sum is divided by the 60 m^2 footprint to get fish per m^2.
+# The seafloor area is the same regardless of how many vertical levels are
+# included. The levels share the same transect corridor, they don't
+# accumulate area. (For a per-volume density, divide by 30*2*2 = 120 m^3
+# per level, but lnRR is computed on proportions and is invariant to this
+# choice as long as it is applied consistently across MPA/reference.)
 Fish.SPUL.All$density <- Fish.SPUL.All$count / PISCO_SWATH_AREA_M2
 # Rename 'classcode' column to 'y' to match swath data species column name
 names(Fish.SPUL.All)[names(Fish.SPUL.All) == "classcode"] <- "y"
@@ -929,8 +1003,19 @@ All.bio <- subset(All.bio, site_status != "")           # Remove empty status
 All.bio <- subset(All.bio, site_designation != "N/A")   # Remove invalid designations
 All.bio <- All.bio[!is.na(All.bio$biomass) & !is.nan(All.bio$biomass), ]  # Remove NA/NaN
 
-# Convert to proportions of time series maximum using utility function from 01_utils.R
-# This standardizes values so different MPAs are comparable
+# Convert to proportions of time-series maximum using utility function from 01_utils.R.
+# This standardizes values so different MPAs are comparable.
+#
+# ZERO-CORRECTION (Emily review, 2026-04):
+#   calculate_proportions() supports two zero-correction modes:
+#     - "adaptive" (default, used here): adds half the minimum non-zero
+#       proportion within each MPA x taxon group, so the floor scales with
+#       the data: small for high-abundance taxa, larger for sparse ones.
+#     - "fixed": adds a constant 0.01.
+#   The previous version of this pipeline computed BOTH corrections in
+#   parallel as a sensitivity check; we now use "adaptive" as primary and
+#   pass `correction_method = "fixed"` to obtain the 0.01 sensitivity output
+#   when needed (see ANALYSIS_REVISIONS.md for the comparison).
 All.bio <- calculate_proportions(All.bio, "biomass")
 
 # Create wide format (one column for mpa, one for reference) to calculate ratio
