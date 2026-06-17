@@ -529,23 +529,38 @@ SizeFreq.Urch <- merge(SizeFreq.Urch, sites.short,
 # counts would be inconsistent across observers. This 25mm threshold is a
 # PISCO-specific methodological standard.
 #
-# CROSS-PROGRAM NOTE: This 25mm filter is applied ONLY to PISCO's own
-# urchin biomass estimation (in this script). KFM (05_kfm_processing.R)
-# and LTER (06_lter_processing.R) do NOT apply this size filter because:
-#   (1) KFM and LTER do not collect individual urchin sizes. They only
-#       record total counts, which may include urchins < 25mm.
-#   (2) To estimate KFM/LTER urchin biomass, we bootstrap-resample from
-#       the UNFILTERED PISCO size-frequency data (SizeFreq.Urch.OG, saved
-#       below). Using the unfiltered data ensures the bootstrap distribution
-#       includes small urchins that KFM/LTER field crews would have counted.
-#   (3) The filtered data (SizeFreq.Urch, after the subset below) is only
-#       used for PISCO's own biomass estimation in this script.
-#
-# This creates a minor inconsistency: PISCO biomass is estimated from
-# urchins >= 25mm only, while KFM/LTER biomass is estimated from the full
-# size distribution. In practice, urchins < 25mm contribute negligible
-# biomass (the allometric relationship is approximately cubic in diameter),
-# so this has minimal effect on biomass estimates.
+# CROSS-PROGRAM NOTE: After the metadata backfill below, the urchin size pool is
+# a COMBINED, all-program pool (PISCO + KFM + LTER sizes, dominated by KFM at the
+# Channel-Island MPAs). All three programs' bootstraps match this pool by
+# MPA/status/year/species:
+#   - PISCO uses SizeFreq.Urch (25mm-filtered) in this script.
+#   - KFM (05_kfm_processing.R) and LTER (06_lter_processing.R) use
+#     SizeFreq.Urch.OG (unfiltered).
+# This realizes Emily's intended design (review note #19: the size pool is
+# PISCO + KFM, mostly KFM, used for biomass across programs). Before the backfill,
+# KFM/LTER size rows had NA MPA metadata and never matched, so KFM/LTER urchin
+# biomass fell back to PISCO sizes -- a latent bug also present in V10.
+
+# Backfill MPA metadata onto non-PISCO (KFM/LTER) urchin size rows.
+# The merge above uses the PISCO-only site table (master_site_table_Emilyedit.csv),
+# so KFM and LTER size rows -- which ARE in the pool (03_data_import.R includes
+# campus == "KFM"/"LTER" urchin sizes, recoded to STRPUR/MESFRA) -- come out with
+# CA_MPA_Name_Short = NA and can never match in the cross-program bootstraps
+# (05_kfm, 06_lter), so KFM/LTER urchin biomass fell back to PISCO sizes. This
+# was a latent bug in the original pipeline (V10 also merged with the PISCO-only
+# site table). Emily's intent (review note #19) is a combined PISCO+KFM size pool
+# used across programs. KFM/LTER size `site` codes (a-k-NN / a-l-NN) are site_ids
+# in the MBON KFM/LTER geolocation table, so we backfill MPA/status from there.
+.geo_meta <- safe_read_csv(here::here("data", "MBON",
+  "SBCMBON_kelp_forest_site_geolocation_20210120_KFM_LTER.csv"))
+.geo_meta <- unique(.geo_meta[, c("site_id", "CA_MPA_Name_Short", "status")])
+.gi <- match(SizeFreq.Urch$site, .geo_meta$site_id)
+.fill_mpa <- !is.na(.gi) & is.na(SizeFreq.Urch$CA_MPA_Name_Short)
+SizeFreq.Urch$CA_MPA_Name_Short[.fill_mpa] <- .geo_meta$CA_MPA_Name_Short[.gi[.fill_mpa]]
+.fill_st <- !is.na(.gi) & is.na(SizeFreq.Urch$site_status)
+SizeFreq.Urch$site_status[.fill_st] <- .geo_meta$status[.gi[.fill_st]]
+cat("  Backfilled MPA metadata onto", sum(.fill_mpa),
+    "KFM/LTER urchin size rows (combined size pool)\n")
 
 # Preserve unfiltered size frequency data for KFM and LTER BEFORE applying
 # the 25mm PISCO-specific filter

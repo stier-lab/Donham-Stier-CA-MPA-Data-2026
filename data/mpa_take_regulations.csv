@@ -1,0 +1,12 @@
+CA_MPA_Name_Short,Designation,Reincluded_For_Sheephead,Takes_Finfish,Takes_Lobster,Takes_Urchin,Basis
+Blue Cavern Onshore SMCA,SMCA,Y,no (sheephead-protective),VERIFY,VERIFY,"Project curation: SMCA regulations protect finfish (incl. sheephead), so functions as a no-take reserve for sheephead"
+Farnsworth Onshore SMCA,SMCA,Y,no (sheephead-protective),VERIFY,VERIFY,"Project curation: SMCA regulations protect finfish (incl. sheephead)"
+Swamis SMCA,SMCA,Y,no (sheephead-protective),VERIFY,VERIFY,"Project curation: SMCA regulations protect finfish (incl. sheephead)"
+Long Point SMR,SMR,Y,no,no,no,SMR class = full no-take
+Santa Barbara Island SMR,SMR,Y,no,no,no,"SMR class = full no-take; special-cased in reinclude_sheephead_mpas() (PISCO sheephead + all KFM taxa)"
+Dana Point SMCA,SMCA,N,yes,yes,yes,"Emily review 2026-04: permits take of lobster, finfish, and urchins; not a sheephead refuge"
+Cat Harbor SMCA,SMCA,N,yes (recreational),yes (commercial),yes (commercial),"Emily review 2026-04: permits commercial lobster/urchin take and recreational finfish take (incl. sheephead)"
+Point Dume SMR,SMR,N,no,no,no,"SMR (no-take) but not reincluded; mainland site outside reinclusion set. VERIFY reason for exclusion"
+Point Dume SMCA,SMCA,N,VERIFY,VERIFY,VERIFY,"Not reincluded; mainland SMCA. VERIFY take rules and exclusion reason"
+Painted Cave SMCA,SMCA,N,VERIFY,VERIFY,VERIFY,"Also in EXCLUDED_MPAS (per-program processing); permanently excluded"
+Anacapa Island SMCA,SMCA,N,VERIFY,VERIFY,VERIFY,"Also in EXCLUDED_MPAS (per-program processing); permanently excluded"

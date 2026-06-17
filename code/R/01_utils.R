@@ -181,81 +181,47 @@ bio_sheephead <- function(size_cm) {
 }
 
 # =============================================================================
-# TODO [MACRO_AVE_SLOPE provenance: UNRESOLVED]
+# Macrocystis stipe-to-biomass slope
 # =============================================================================
-# These six values do NOT match either of the two candidate published sources.
-# Provenance is an open issue.
+# DECISION (2026-06, Emily review): use Reed et al. (2009)'s published pooled
+# stipe-density-to-standing-crop slope of 0.08.
 #
-# The values:
-#   c(0.10386, 0.10103, 0.09267, 0.09204, 0.08054, 0.08505), mean = 0.0925
+#   Reed, D.C., Rassweiler, A. & Arkema, K.K. (2009). Density derived estimates
+#   of standing crop and net primary production in the giant kelp Macrocystis
+#   pyrifera. Marine Biology 156: 2077-2083. doi:10.1007/s00227-009-1238-6
+#   (open access, PMC3873067). Fig. 2b: standing crop = 0.08 x stipe density +
+#   0.01 (r^2 = 0.79), an SBC-LTER calibration (Jan 2003 - Dec 2008).
 #
-# Originally documented in the archived pipeline `pBACIPS_PISCO_V10.R` L674
-# as "Slopes from May-Oct from LTER". A 2026-05-05 audit of both candidate
-# published sources confirmed the values are NOT in either paper:
+# This replaces an earlier value, mean(c(0.10386, 0.10103, 0.09267, 0.09204,
+# 0.08054, 0.08505)) = 0.0925, carried over from the archived pipeline
+# (pBACIPS_PISCO_V10.R L674) where it was labelled "slopes May-Oct from LTER"
+# but could not be traced to any published source (audited 2026-05-05 against
+# Reed 2009 and Rassweiler et al. 2018, Ecology 99(9):2132 — the six values
+# appear in neither). Reed 2009's pooled 0.08 is the canonical, open-access,
+# already-cited SBC LTER calibration, so it is the defensible project standard.
 #
-#   1. Reed, D.C., Rassweiler, A. & Arkema, K.K. (2009). Density derived
-#      estimates of standing crop and net primary production in the giant
-#      kelp Macrocystis pyrifera. Marine Biology 156: 2077-2083.
-#      DOI: 10.1007/s00227-009-1238-6 (open access via PMC3873067).
-#      Publishes a SINGLE pooled slope of 0.08 (Fig. 2b: y = 0.08x + 0.01,
-#      r^2 = 0.79), three sites only (Mohawk, Arroyo Burro, Arroyo Quemado),
-#      year-round calibration (Jan 2003 - Dec 2008). NO per-site slopes,
-#      NO May-Oct subset, NONE of our six values appear.
-#
-#   2. Rassweiler, A., Reed, D.C., Harrer, S.L. & Nelson, J.C. (2018).
-#      Improved estimates of net primary production, growth, and standing
-#      crop of Macrocystis pyrifera in Southern California. Ecology
-#      99(9): 2132. DOI: 10.1002/ecy.2440.
-#      Updated Reed 2009. Three sites only. Slope range across all 7 model
-#      variants per site = 0.00029 - 0.09907 (so two of our six values
-#      exceed this range). Calibration uses every month from May 2002 -
-#      Dec 2017 (the full annual cycle, NOT a May-Oct subset). The "May"
-#      anchor is just when SBC LTER kelp monitoring began.
-#
-# Most likely actual source: an internal SBC LTER calibration spreadsheet
-# (per-month or per-section slopes computed from the same raw data behind
-# the published papers but never formally published).
-#
-# Three resolution options:
-#   (a) Replace MACRO_AVE_SLOPE with Reed 2009's pooled slope = 0.08, citing
-#       Reed et al. 2009. ~14% smaller absolute biomass values.
-#   (b) Replace with Rassweiler 2018's updated pooled slope (~0.187 dry-mass
-#       equivalent from Slope = 1.99495 wet kg per frond x 0.094 wet/dry
-#       ratio), citing Rassweiler 2018. ~2x larger absolute biomass values.
-#   (c) Locate the original SBC LTER calibration file the six values came
-#       from and document it as the source.
-#
-# Result-impact note: proportion-based lnRR is invariant under multiplicative
-# scaling, so meta-analysis effect sizes are unchanged regardless of which
-# option we pick. Only absolute biomass values in
-# `output/harmonized/harmonized_raw_responses.csv` shift.
+# RESULT IMPACT: the analysis uses proportion-based lnRR, which is invariant
+# under multiplicative rescaling of biomass, so meta-analysis effect sizes,
+# CIs, and weights are UNCHANGED. Only the absolute Macrocystis biomass values
+# in output/harmonized/harmonized_raw_responses.csv shift (~14% lower than the
+# previous 0.0925).
 # =============================================================================
-MACRO_AVE_SLOPE <- mean(c(0.10386, 0.10103, 0.09267, 0.09204, 0.08054, 0.08505))
-
-# Runtime flag so the pipeline announces the open provenance issue every run.
-# Suppress with options(macro_ave_slope_warn = FALSE) once resolved.
-if (!isFALSE(getOption("macro_ave_slope_warn", TRUE))) {
-  packageStartupMessage(
-    "OPEN ISSUE [MACRO_AVE_SLOPE]: provenance of the six slope values is ",
-    "unresolved (audited 2026-05-05; not in Reed 2009 or Rassweiler 2018). ",
-    "See `01_utils.R` TODO block above MACRO_AVE_SLOPE for resolution options."
-  )
-}
+MACRO_AVE_SLOPE <- 0.08  # Reed et al. 2009, Mar Biol 156:2077-2083
 
 #' @title Giant kelp biomass from stipe count
 #' @description Converts \emph{Macrocystis pyrifera} stipe counts to biomass
-#'   (grams) using MACRO_AVE_SLOPE (mean of six SBC-LTER-derived slopes;
-#'   provenance is an open issue. See TODO block above MACRO_AVE_SLOPE
-#'   definition), multiplied by 1000 to convert kg to g.
+#'   (grams) using MACRO_AVE_SLOPE (Reed et al. 2009 pooled slope = 0.08;
+#'   see note above the constant definition), multiplied by 1000 to convert
+#'   kg to g.
 #' @param stipe Numeric vector of stipe counts (or stipe density per m^2).
 #'   PISCO records stipes per individual; KFM records per-plant stipe counts
 #'   in the KFM_Macrocystis_RawData file. LTER stores its counts in a column
 #'   named FRONDS, but per Li (LTER) these are the same structural unit
 #'   (stipes = fronds for this purpose), so all three programs feed compatible
 #'   counts into bio_macro().
-#' @note TODO: the MACRO_AVE_SLOPE provenance is unresolved as of 2026-05-05.
-#'   See the TODO comment block above the constant definition for the three
-#'   resolution options (a/b/c) and the impact analysis.
+#' @note MACRO_AVE_SLOPE = 0.08 (Reed et al. 2009). Because the analysis uses
+#'   proportion-based lnRR, the choice of slope does not affect meta-analysis
+#'   effect sizes; it only rescales absolute biomass.
 #' @return Numeric vector of biomass estimates (grams).
 bio_macro <- function(stipe) {
   stipe * MACRO_AVE_SLOPE * 1000
@@ -639,6 +605,10 @@ SHEEPHEAD_ONLY_MPAS <- c(
 #     so not a sheephead refuge in any meaningful sense.
 #   - "Cat Harbor SMCA": permits commercial take of lobster and urchin and
 #     recreational take of finfish (including sheephead).
+#
+# The take rules and reinclusion decision for every sheephead-only MPA are
+# tabulated in data/mpa_take_regulations.csv (a provenance/decision record;
+# cells marked VERIFY still need confirmation against CDFW regulations).
 SHEEPHEAD_REINCLUSION_MPAS <- c(
   "Blue Cavern Onshore SMCA",
   "Farnsworth Onshore SMCA",

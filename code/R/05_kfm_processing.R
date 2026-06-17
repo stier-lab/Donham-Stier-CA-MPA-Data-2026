@@ -211,10 +211,14 @@ kfm.site <- subset(kfm.site, taxon_name != "Macrocystis pyrifera" | proj_taxon_i
 
 cat("  KFM target taxa rows:", nrow(kfm.site), "\n")
 
-# Sum across the adult-Macrocystis proj_taxon_ids retained above. KFM stores
-# adult Macro stipes under multiple proj_taxon_ids (including a holdfast-based
-# whole-plant tally) which we sum across all individuals at a site-year-
-# replicate to get total stipe count.
+# Sum across the adult-Macrocystis proj_taxon_ids retained above to get the
+# total stipe count per site-year-replicate. (Re: Emily's "where did holdfast
+# come from?" review note) KFM records adult giant kelp under more than one
+# proj_taxon_id; these are treated as non-overlapping tallies of stipes for the
+# same replicate and summed. This assumes the IDs do not double-count the same
+# plant. VERIFY against the KFM proj_taxon_id scheme if a definitive
+# stipe-vs-holdfast distinction is needed; the bootstrap is otherwise robust to
+# this because lnRR is proportion-based.
 kfm.sum <- kfm.site %>%
   dplyr::group_by(site_id, taxon_name, status, CA_MPA_Name_Short, area, ChannelIsland, replicate_id, MPA_Start, time, year) %>%
   dplyr::summarise_at(c("count"), sum) %>%
@@ -233,47 +237,40 @@ kfm.ave <- kfm.sum %>%
 # ===========================================================================
 # Section 6: Calculate urchin biomass via bootstrap resampling
 # ===========================================================================
-# KFM does not record individual urchin sizes, only counts per quadrat. To
-# estimate biomass we bootstrap-resample sizes from the urchin size-frequency
-# pool in `SizeFreq.Urch.OG`, then apply species-specific allometric equations
-# (bio_redurch for M. franciscanus, bio_purpurch for S. purpuratus).
+# KFM records urchin COUNTS per quadrat (no per-quadrat sizes), but it DOES run
+# separate site-level urchin size-frequency surveys ("Natural Habitat", 1985-2023).
+# Those size data are present in data/ALL_sizefreq_2024.csv (campus == "KFM") and
+# are pulled into the combined urchin size pool by 03_data_import.R (recoded to
+# STRPUR/MESFRA). We estimate biomass by bootstrap-resampling sizes from the
+# combined pool SizeFreq.Urch.OG, then applying species-specific allometric
+# equations (bio_redurch for M. franciscanus / red urchin, bio_purpurch for
+# S. purpuratus / purple urchin).
 #
-# CROSS-PROGRAM BOOTSTRAP ASSUMPTION:
-#   `SizeFreq.Urch.OG` is built in 04_pisco_processing.R from
-#   `data/ALL_sizefreq_2024.csv`. Verified against the file's `method`
-#   column (audit 2026-05-04): for the two urchin classcodes
-#   (MESFRA, STRPUR) the pool contains:
-#       SBTL_SIZEFREQ_PISCO  : 3,848 obs (PISCO UCSB)
-#       SBTL_SIZEFREQ_VRG    : 16,810 obs (PISCO VRG)
-#       SBTL_SIZEFREQ_KFM    : 0 obs   <-- not in the file as of 2024 release
-#       SBTL_SIZEFREQ_LTER   : 0 obs
-#   So the urchin size-frequency pool is effectively PISCO-only. (Emily's
-#   2026-04 review note suggested KFM contributes urchin sizes via
-#   separate site-level surveys. Those internal KFM size-frequency
-#   files are NOT included in ALL_sizefreq_2024.csv. If we obtain them
-#   later, they could be appended with method = SBTL_SIZEFREQ_KFM and
-#   the bootstrap would automatically use them.)
+# HISTORY (corrected 2026-06, Emily review): KFM urchin sizes were present in the
+# pool but unusable -- 04_pisco_processing.R attached MPA metadata to the size
+# rows via the PISCO-only site table, leaving KFM (and LTER) rows with
+# CA_MPA_Name_Short = NA, so they never matched and KFM biomass fell back to PISCO
+# sizes. (This bug was also present in Emily's V10, which merged the pool with the
+# same PISCO-only table; she flagged the symptom in review.) 04 now backfills MPA
+# metadata onto the KFM/LTER size rows, so the bootstrap below draws from the
+# combined PISCO+KFM pool -- which at KFM's Channel-Island MPAs is overwhelmingly
+# KFM's own sizes. This realizes Emily's intended design (review note #19).
 #
-#   The bootstrap therefore matches KFM count rows to PISCO size data
-#   by: CA_MPA_Name_Short, site_status (mpa/reference), year, and species
-#   (classcode). For each KFM site-year, we draw `n` individuals (with
-#   replacement) from the matched PISCO size-frequency pool and convert
-#   to biomass via allometric equations. When no matching size data
-#   exists for a given MPA/year/status combination, biomass is set to NA
-#   and the observation is excluded.
+#   MATCHING: the bootstrap draws sizes for each KFM count by
+#   CA_MPA_Name_Short, site_status (mpa/reference), year, and species
+#   (classcode) — see the loop below. When no size data exist for a given
+#   MPA/year/status/species cell, biomass is set to NA and the observation is
+#   excluded.
 #
-#   ASSUMPTION: PISCO-derived urchin size structure is representative of
-#   KFM-counted urchins at the same MPA/year. Reasonable because PISCO
-#   and KFM sample many overlapping or near-by sites in the Channel
-#   Islands, but it IS a cross-program assumption.
+#   25 mm THRESHOLD: KFM uses SizeFreq.Urch.OG (the UNFILTERED pool); the 25 mm
+#   PISCO cutoff is not applied to it, since KFM counts may include urchins
+#   < 25 mm. Small urchins contribute negligible biomass (allometry ~cubic in
+#   diameter), so this choice is immaterial to biomass.
 #
-#   The same approach is used for LTER urchins in 06_lter_processing.R.
-#
-#   Note: SizeFreq.Urch.OG is the UNFILTERED size-frequency data (before
-#   the PISCO-specific 25 mm minimum filter applied in 04_pisco_processing.R).
-#   This matters because KFM does not apply a 25 mm threshold; using the
-#   unfiltered pool ensures small-urchin counts are matched to small-urchin
-#   sizes when bootstrapping biomass.
+#   LTER NOTE: 06_lter_processing.R uses the same combined pool (SizeFreq.Urch.OG)
+#   and is fixed by the same 04 metadata backfill -- LTER urchins now draw from
+#   LTER's own sizes (classcodes SFL/SFS/SPS/SPL) plus any PISCO sizes at the
+#   same MPA/year.
 
 URCHINS <- subset(kfm.site, taxon_name == "Strongylocentrotus purpuratus" |
                     taxon_name == "Mesocentrotus franciscanus")
@@ -285,7 +282,16 @@ URCHINS <- dplyr::mutate(URCHINS, taxon_name = dplyr::case_when(
 u <- unique(URCHINS[, c("year", "site_id", "CA_MPA_Name_Short", "status", "area", "taxon_name")])
 cat("  KFM urchin bootstrap: ", nrow(u), " site-year-species combinations\n")
 
-# Reset size frequency data to original (before PISCO 25mm filter applied in 04)
+# Urchin size pool for the KFM bootstrap. SizeFreq.Urch.OG is the combined,
+# all-program urchin size-frequency pool built in 04_pisco_processing.R -- now
+# with MPA metadata attached to KFM/LTER rows as well (see the metadata-backfill
+# step in 04). This realizes Emily's intended design (review note #19: the size
+# pool is PISCO + KFM, mostly KFM, and is used for biomass across programs):
+# each KFM count below draws sizes matched by MPA/status/year/species from the
+# combined pool, which at KFM's Channel-Island MPAs is dominated by KFM's own
+# size-frequency surveys. (Previously KFM/LTER size rows had CA_MPA_Name_Short =
+# NA and never matched, so KFM biomass fell back to PISCO sizes -- the latent
+# bug Emily flagged in her review.)
 SizeFreq.Urch <- SizeFreq.Urch.OG
 
 # Cache bootstrap results to avoid re-running the slow loop

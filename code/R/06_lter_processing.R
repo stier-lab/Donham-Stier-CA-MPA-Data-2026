@@ -133,33 +133,27 @@ cat("  LTER target taxa density averages:", nrow(lter.ave), "rows\n")
 # ===========================================================================
 # Section 2: Bootstrap urchin biomass from size frequency distributions
 # ===========================================================================
-# LTER counts urchins but doesn't measure individual sizes. To estimate biomass,
-# we bootstrap-resample from the PISCO size-frequency distribution (SizeFreq.Urch.OG)
-# collected from the same MPA/status/year, then apply species-specific allometric
-# equations (bio_redurch for M. franciscanus, bio_purpurch for S. purpuratus).
-# This is the same approach used in 05_kfm_processing.R for KFM urchins.
+# LTER urchin biomass is estimated by bootstrap-resampling from the COMBINED
+# urchin size-frequency pool (SizeFreq.Urch.OG), matched by MPA/status/year/species,
+# then applying species-specific allometric equations (bio_redurch for
+# M. franciscanus, bio_purpurch for S. purpuratus). Same approach as KFM (05).
 #
-# CROSS-PROGRAM BOOTSTRAP ASSUMPTION:
-#   LTER does not collect urchin size data, only total counts per quadrat.
-#   To estimate biomass, we borrow size-frequency distributions from PISCO
-#   (SizeFreq.Urch.OG), which measures individual urchin test diameters.
+# SIZE POOL (corrected 2026-06, Emily review):
+#   LTER conducts its own urchin size-frequency measurements (classcodes
+#   SFL/SFS/SPS/SPL), which 03_data_import.R recodes to STRPUR/MESFRA and adds to
+#   the pool. Previously those LTER size rows had NA MPA metadata (the pool was
+#   merged with the PISCO-only site table) and never matched, so LTER urchin
+#   biomass fell back to PISCO sizes. 04_pisco_processing.R now backfills MPA
+#   metadata onto KFM/LTER size rows, so LTER counts draw from LTER's own sizes
+#   plus any PISCO sizes at the same MPA/year (the combined pool Emily intended).
 #
 #   The bootstrap matches by: CA_MPA_Name_Short, site_status (mpa/reference),
-#   year, and species (classcode). For each LTER site-year, we draw `n`
-#   individuals (with replacement) from the matching PISCO size-frequency
-#   pool and convert to biomass via allometric equations.
+#   year, and species (classcode). When no size data exist for a given
+#   MPA/year/status/species cell, biomass is set to NA and that observation is
+#   excluded.
 #
-#   Key assumption: Urchin size structure at LTER mainland sites is similar
-#   to PISCO sites within the same MPA and year. This is a necessary
-#   approximation because LTER's monitoring protocol does not include size
-#   measurements for urchins. When no matching PISCO size data exists for a
-#   given MPA/year/status combination, biomass is set to NA and that
-#   observation is excluded.
-#
-#   Note: SizeFreq.Urch.OG is the UNFILTERED size-frequency data (before
-#   the PISCO-specific 25mm minimum filter applied in 04_pisco_processing.R).
-#   See 05_kfm_processing.R Section 6 for the identical approach and
-#   further discussion of this assumption.
+#   Note: SizeFreq.Urch.OG is the UNFILTERED size-frequency data (before the
+#   PISCO-specific 25mm minimum filter applied in 04_pisco_processing.R).
 
 URCHINS <- subset(lter.site,
                   taxon_name == "Strongylocentrotus purpuratus" |

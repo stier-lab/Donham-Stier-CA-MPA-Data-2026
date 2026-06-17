@@ -396,8 +396,9 @@ filtering_summary <- data.frame(
   ),
   stringsAsFactors = FALSE
 )
-write_csv(filtering_summary, here::here("outputs", "data_filtering_steps.csv"))
-cat("Data filtering steps exported to: outputs/data_filtering_steps.csv\n")
+dir.create(here::here("output"), showWarnings = FALSE)
+write_csv(filtering_summary, here::here("output", "data_filtering_steps.csv"))
+cat("Data filtering steps exported to: output/data_filtering_steps.csv\n")
 
 # Clean up intermediate objects
 rm(All.RR, All.spul, All.Resp, All.Resp.spul)
@@ -418,35 +419,30 @@ bootstrap_report <- data.frame(
             "Kelp (M. pyrifera)",
             "Urchins (S. purpuratus, M. franciscanus)",
             "Lobster (P. interruptus)"),
-  # Verified against ALL_sizefreq_2024.csv `method` column (audit 2026-05-04):
-  # For urchin classcodes (MESFRA, STRPUR) the size-frequency pool is
-  # PISCO-only: 3,848 obs from SBTL_SIZEFREQ_PISCO (UCSB) plus 16,810 obs
-  # from SBTL_SIZEFREQ_VRG, zero obs labeled SBTL_SIZEFREQ_KFM or
-  # SBTL_SIZEFREQ_LTER. Both KFM and LTER urchin biomass therefore rely on
-  # PISCO size data as a CROSS-PROGRAM bootstrap source.
-  #
-  # (Emily's 2026-04 review noted that KFM internally collects separate
-  # site-level urchin size-frequency surveys; those files are not currently
-  # ingested into ALL_sizefreq_2024.csv. If/when they are added (under
-  # method = SBTL_SIZEFREQ_KFM), the bootstrap will pick them up
-  # automatically and the cross-program assumption for KFM will weaken.)
-  Size_Data_Source = c("Own (PISCO size-frequency, 25 mm filter applied)",
+  # Urchin biomass uses a COMBINED size-frequency pool (all programs, recoded by
+  # 03 and given MPA metadata by 04's backfill), matched by MPA/status/year/species
+  # (corrected 2026-06, Emily review; realizes her note #19). At a given MPA the
+  # pool is dominated by whichever program sizes most there:
+  #   KFM MPAs (Channel Islands) -> overwhelmingly KFM's own sizes (1985-2023).
+  #   LTER MPAs (Campus Pt, Naples) -> LTER's own sizes + any PISCO sizes there.
+  #   PISCO -> combined PISCO+KFM sizes where both sample the same MPA.
+  Size_Data_Source = c("Combined size pool (PISCO + KFM), 25 mm filter applied",
                        "Own (PISCO VRG size-frequency, roving-diver protocol)",
-                       "Cross-program (PISCO size-frequency pool, no 25 mm filter; KFM-internal size files not currently ingested)",
+                       "Combined size pool (dominated by KFM's own size-frequency surveys)",
                        "Own (KFM per-plant stipe counts, KFM_Macrocystis_RawData)",
-                       "Cross-program (PISCO size-frequency pool, no 25 mm filter; LTER does not collect urchin sizes)",
+                       "Combined size pool (LTER's own sizes + PISCO sizes at same MPA/year)",
                        "Own (LTER measures carapace length directly)"),
-  Assumption = c("None: native size data",
+  Assumption = c("Combined pool matched by MPA/status/year/species",
                  "None: native size data",
-                 "Cross-program: assumes the PISCO size-frequency pool is representative of urchins counted by KFM at the same MPA/year. Reasonable because PISCO and KFM sample many overlapping or near-by sites in the Channel Islands, but a known cross-program assumption.",
+                 "Native KFM sizes used (combined pool dominated by KFM at its MPAs)",
                  "None: native stipe count data",
-                 "Cross-program: assumes the PISCO size-frequency pool is representative of urchins at LTER sites in the same MPA/year.",
+                 "Native LTER sizes used where available; PISCO sizes supplement at same MPA/year",
                  "None: native size data"),
   stringsAsFactors = FALSE
 )
 
-write.csv(bootstrap_report, here::here("outputs", "bootstrap_data_availability.csv"), row.names = FALSE)
-cat("Bootstrap data availability report exported to: outputs/bootstrap_data_availability.csv\n")
+write.csv(bootstrap_report, here::here("output", "bootstrap_data_availability.csv"), row.names = FALSE)
+cat("Bootstrap data availability report exported to: output/bootstrap_data_availability.csv\n")
 
 # Summary of cross-program dependencies
 n_cross_program <- sum(grepl("Cross-program", bootstrap_report$Size_Data_Source))

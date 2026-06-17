@@ -122,11 +122,16 @@ if (!file.exists(landsat_data_path)) {
       length(unique(bio.summarize.long$MPA)), "MPAs\n")
 
   # ===========================================================================
-  # Section 3: Calculate annual mean biomass by MPA and status
+  # Section 3: Aggregate to one value per MPA-status-year
   # ===========================================================================
-  # Average across replicates within each MPA-status-year combination.
-  # This produces a single mean biomass estimate per MPA per year for both
-  # MPA (inside) and reference (outside) sites.
+  # Each input value is already an ANNUAL MAXIMUM (peak) canopy biomass for a
+  # given station/replicate (the T. Bell / SBC LTER kelp-watch product; see
+  # Section 1). Here we AVERAGE those annual-max values across the replicate
+  # stations within each MPA-status-year, giving one MPA-level estimate per
+  # year for both MPA (inside) and reference (outside) sites. This two-step
+  # reduction (annual max per station, then mean across stations) matches the
+  # original pipeline (Emily review 2026-06) and the cross-replicate averaging
+  # used for the in-water programs.
 
   bio.ave.mpa <- bio.summarize.long %>%
     dplyr::group_by(MPA, status, year) %>%
