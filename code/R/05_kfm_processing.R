@@ -570,9 +570,14 @@ if (!exists("Macro.site") || is.null(Macro.site)) {
         for (k in seq_len(n_boot)) {
           s[k, ] <- sample(a$Stipe_Count, n, replace = TRUE)
         }
-        # Apply bio_macro() allometric function to convert stipe counts to biomass
+        # Apply bio_macro() allometric function to convert stipe counts to biomass.
+        # Use everything() (not starts_with("X")): at this point `s` holds only the
+        # n resampled-stipe columns, and when n == 1 R names that single column
+        # "matrix.NA..ncol...1." (NOT "X1"), so starts_with("X") silently matched
+        # zero columns and biomass collapsed to the raw stipe count for single-plant
+        # (ind == 1) site-years. (Fixed 2026-06 audit.)
         s_bio <- s %>%
-          dplyr::mutate(dplyr::across(starts_with("X"), ~ bio_macro(.)))
+          dplyr::mutate(dplyr::across(dplyr::everything(), ~ bio_macro(.)))
         s_bio <- s_bio %>%
           dplyr::mutate(sum = rowSums(.))
         s <- s %>%

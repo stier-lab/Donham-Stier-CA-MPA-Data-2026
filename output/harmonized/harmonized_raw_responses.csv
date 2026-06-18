@@ -2183,7 +2183,7 @@
 "Anacapa Island SMR 2003",2006,"Macrocystis pyrifera","KFM","mpa",0,"Bio","After",3
 "Anacapa Island SMR 2003",2006,"Mesocentrotus franciscanus","KFM","mpa",193.519229153717,"Bio","After",3
 "Anacapa Island SMR 2003",2006,"Strongylocentrotus purpuratus","KFM","mpa",15.1213932555518,"Bio","After",3
-"Anacapa Island SMR 2003",2007,"Macrocystis pyrifera","KFM","mpa",0.007435,"Bio","After",4
+"Anacapa Island SMR 2003",2007,"Macrocystis pyrifera","KFM","mpa",0.5948,"Bio","After",4
 "Anacapa Island SMR 2003",2007,"Mesocentrotus franciscanus","KFM","mpa",41.8544073093304,"Bio","After",4
 "Anacapa Island SMR 2003",2007,"Strongylocentrotus purpuratus","KFM","mpa",7.89396413416284,"Bio","After",4
 "Anacapa Island SMR 2003",2008,"Macrocystis pyrifera","KFM","mpa",21.4228,"Bio","After",5
@@ -2576,7 +2576,7 @@
 "Anacapa Island SMR 2003",2006,"Macrocystis pyrifera","KFM","reference",0,"Bio","After",3
 "Anacapa Island SMR 2003",2006,"Mesocentrotus franciscanus","KFM","reference",434.642440170443,"Bio","After",3
 "Anacapa Island SMR 2003",2006,"Strongylocentrotus purpuratus","KFM","reference",451.596341727532,"Bio","After",3
-"Anacapa Island SMR 2003",2007,"Macrocystis pyrifera","KFM","reference",0.0131866666666667,"Bio","After",4
+"Anacapa Island SMR 2003",2007,"Macrocystis pyrifera","KFM","reference",1.05493333333333,"Bio","After",4
 "Anacapa Island SMR 2003",2007,"Mesocentrotus franciscanus","KFM","reference",195.608250275238,"Bio","After",4
 "Anacapa Island SMR 2003",2007,"Strongylocentrotus purpuratus","KFM","reference",231.203775125463,"Bio","After",4
 "Anacapa Island SMR 2003",2008,"Macrocystis pyrifera","KFM","reference",0,"Bio","After",5
@@ -2588,7 +2588,7 @@
 "Anacapa Island SMR 2003",2010,"Macrocystis pyrifera","KFM","reference",0,"Bio","After",7
 "Anacapa Island SMR 2003",2010,"Mesocentrotus franciscanus","KFM","reference",261.048736716138,"Bio","After",7
 "Anacapa Island SMR 2003",2010,"Strongylocentrotus purpuratus","KFM","reference",374.49806090116,"Bio","After",7
-"Anacapa Island SMR 2003",2011,"Macrocystis pyrifera","KFM","reference",0.00338166666666667,"Bio","After",8
+"Anacapa Island SMR 2003",2011,"Macrocystis pyrifera","KFM","reference",0.270533333333333,"Bio","After",8
 "Anacapa Island SMR 2003",2011,"Mesocentrotus franciscanus","KFM","reference",249.246819525462,"Bio","After",8
 "Anacapa Island SMR 2003",2011,"Strongylocentrotus purpuratus","KFM","reference",337.984842934366,"Bio","After",8
 "Anacapa Island SMR 2003",2012,"Macrocystis pyrifera","KFM","reference",0,"Bio","After",9
@@ -2597,7 +2597,7 @@
 "Anacapa Island SMR 2003",2013,"Macrocystis pyrifera","KFM","reference",2.56986666666667,"Bio","After",10
 "Anacapa Island SMR 2003",2013,"Mesocentrotus franciscanus","KFM","reference",210.656417495533,"Bio","After",10
 "Anacapa Island SMR 2003",2013,"Strongylocentrotus purpuratus","KFM","reference",255.644345019918,"Bio","After",10
-"Anacapa Island SMR 2003",2014,"Macrocystis pyrifera","KFM","reference",0.0151533333333333,"Bio","After",11
+"Anacapa Island SMR 2003",2014,"Macrocystis pyrifera","KFM","reference",1.21226666666667,"Bio","After",11
 "Anacapa Island SMR 2003",2014,"Mesocentrotus franciscanus","KFM","reference",183.208885160869,"Bio","After",11
 "Anacapa Island SMR 2003",2014,"Strongylocentrotus purpuratus","KFM","reference",217.108256271894,"Bio","After",11
 "Anacapa Island SMR 2003",2015,"Macrocystis pyrifera","KFM","reference",241.168266666667,"Bio","After",12
@@ -2945,7 +2945,7 @@
 "South Point SMR",2015,"Macrocystis pyrifera","KFM","reference",307.041333333333,"Bio","After",12
 "South Point SMR",2015,"Mesocentrotus franciscanus","KFM","reference",593.15310786778,"Bio","After",12
 "South Point SMR",2015,"Strongylocentrotus purpuratus","KFM","reference",657.302310194849,"Bio","After",12
-"South Point SMR",2016,"Macrocystis pyrifera","KFM","reference",14.2473783333333,"Bio","After",13
+"South Point SMR",2016,"Macrocystis pyrifera","KFM","reference",14.9988,"Bio","After",13
 "South Point SMR",2016,"Mesocentrotus franciscanus","KFM","reference",1238.76752243146,"Bio","After",13
 "South Point SMR",2016,"Strongylocentrotus purpuratus","KFM","reference",637.751280100004,"Bio","After",13
 "South Point SMR",2017,"Macrocystis pyrifera","KFM","reference",4.914,"Bio","After",14
@@ -2954,13 +2954,13 @@
 "South Point SMR",2018,"Macrocystis pyrifera","KFM","reference",0,"Bio","After",15
 "South Point SMR",2018,"Mesocentrotus franciscanus","KFM","reference",270.611240297242,"Bio","After",15
 "South Point SMR",2018,"Strongylocentrotus purpuratus","KFM","reference",506.738106537103,"Bio","After",15
-"South Point SMR",2019,"Macrocystis pyrifera","KFM","reference",106.718676666667,"Bio","After",16
+"South Point SMR",2019,"Macrocystis pyrifera","KFM","reference",107.909733333333,"Bio","After",16
 "South Point SMR",2019,"Mesocentrotus franciscanus","KFM","reference",153.623098167124,"Bio","After",16
 "South Point SMR",2019,"Strongylocentrotus purpuratus","KFM","reference",305.356203546523,"Bio","After",16
-"South Point SMR",2021,"Macrocystis pyrifera","KFM","reference",97.3186116666667,"Bio","After",18
+"South Point SMR",2021,"Macrocystis pyrifera","KFM","reference",98.8732,"Bio","After",18
 "South Point SMR",2021,"Mesocentrotus franciscanus","KFM","reference",259.74974000913,"Bio","After",18
 "South Point SMR",2021,"Strongylocentrotus purpuratus","KFM","reference",344.555690418409,"Bio","After",18
-"South Point SMR",2022,"Macrocystis pyrifera","KFM","reference",53.07633,"Bio","After",19
+"South Point SMR",2022,"Macrocystis pyrifera","KFM","reference",54.0609333333333,"Bio","After",19
 "South Point SMR",2022,"Mesocentrotus franciscanus","KFM","reference",257.772722454157,"Bio","After",19
 "South Point SMR",2022,"Strongylocentrotus purpuratus","KFM","reference",345.87102403203,"Bio","After",19
 "Abalone Cove SMCA",2010,"Semicossyphus pulcher","PISCO","mpa",0.00833333333333333,"Den","Before",0
