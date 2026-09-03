@@ -13,7 +13,7 @@
 # NOTE ON SHARED CONSTANTS:
 #   This file is duplicated in both the data-processing repo
 #   (Donham-Stier-CA-MPA-Data-2026) and the analysis repo
-#   (Donham-Stier-CA-MPA-2026). Constants used by both repos are marked
+#   (sbc-2026-donham-kelp-mpa-cascade). Constants used by both repos are marked
 #   with "SHARED" comments. Changes to shared constants must be mirrored
 #   in both copies.
 #

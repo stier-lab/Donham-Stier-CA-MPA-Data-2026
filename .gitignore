@@ -16,6 +16,8 @@ Rplots.pdf
 
 # Pipeline logs (keep directory, ignore contents)
 logs/*.log
+firebase-debug.log
+local_archive/
 
 # Large raw data files (symlink from Google Drive or download from Dryad)
 data/MBON

@@ -2,7 +2,18 @@
 
 This repository processes raw monitoring data from three long-term kelp forest monitoring programs (PISCO, KFM/MBON, LTER) and satellite imagery (Landsat) into harmonized, analysis-ready CSVs.
 
-**Companion analysis repo:** [Donham-Stier-CA-MPA-2026](https://github.com/stier-lab/Donham-Stier-CA-MPA-2026). It consumes the harmonized CSVs produced here to run meta-analysis, generate figures, and produce manuscript tables.
+**Companion analysis repo:** [sbc-2026-donham-kelp-mpa-cascade](https://github.com/stier-lab/sbc-2026-donham-kelp-mpa-cascade). It consumes the harmonized CSVs produced here to run meta-analysis, generate figures, and produce manuscript tables.
+
+**GitHub status:** archived/read-only as of 2026-09-03. Local cleanup or
+documentation commits require unarchiving this repo or pushing to a new remote
+before they are visible on GitHub.
+
+## Repository Scope
+
+This public repository is the source-data harmonization workspace. Keep raw data
+out of git, keep manuscript drafts/citation PDFs/cover letters in the private
+manuscript repo, and keep statistical models, figures, and result summaries in
+the companion analysis repo.
 
 ## Quick Start
 
@@ -71,4 +82,4 @@ This repo has two documentation files at different layers of the pipeline:
 
 ## Citation
 
-Donham, E. & Stier, A. (2026). Restoration of trophic cascades within kelp forests following the establishment of a network of marine protected areas. *Conservation Letters*.
+Donham, E. & Stier, A. (2026). Partial trophic-cascade recovery and kelp resilience in a southern California marine protected-area network. Manuscript in preparation for *Journal of Applied Ecology*.
