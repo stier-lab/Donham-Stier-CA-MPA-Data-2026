@@ -1,6 +1,6 @@
 # Data Dictionary: Harmonized Output
 
-These CSVs are produced by the data-processing pipeline and consumed by the analysis repo. They are also the analysis-ready dataset published on Dryad.
+These CSVs are produced by the data-processing pipeline and consumed by the analysis repo. They are the current analysis-ready dataset snapshot for the manuscript; final public archival routing should be confirmed before submission.
 
 **Last updated:** 2026-05-04 (post Emily code review, metadata audit, and full data-source documentation)
 

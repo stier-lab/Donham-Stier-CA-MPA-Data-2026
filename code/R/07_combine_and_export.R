@@ -456,7 +456,8 @@ if (n_cross_program > 0) {
 # SECTION 13: EXPORT HARMONIZED CSVs
 # =============================================================================
 # These 4 CSVs are the handoff between the data-processing and analysis repos.
-# They are also the analysis-ready dataset published on Dryad.
+# They are the current analysis-ready dataset snapshot for the manuscript; final
+# public archival routing should be confirmed before submission.
 
 harmonized_dir <- here::here("output", "harmonized")
 dir.create(harmonized_dir, recursive = TRUE, showWarnings = FALSE)

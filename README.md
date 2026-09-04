@@ -4,9 +4,9 @@ This repository processes raw monitoring data from three long-term kelp forest m
 
 **Companion analysis repo:** [sbc-2026-donham-kelp-mpa-cascade](https://github.com/stier-lab/sbc-2026-donham-kelp-mpa-cascade). It consumes the harmonized CSVs produced here to run meta-analysis, generate figures, and produce manuscript tables.
 
-**GitHub status:** archived/read-only as of 2026-09-03. Local cleanup or
-documentation commits require unarchiving this repo or pushing to a new remote
-before they are visible on GitHub.
+**GitHub status:** archived/read-only after the 2026-09-03 cleanup. This repo
+is provenance and harmonization support for the current analysis repo, not the
+final manuscript data/code release by itself.
 
 ## Repository Scope
 
@@ -26,25 +26,21 @@ source(here::here("code", "R", "run_all.R"))
 
 ## Data Setup
 
-Raw monitoring data (~1.3 GB) is not included in this repository. Choose one option:
+Raw monitoring data are not tracked in this repository. To rerun harmonization,
+obtain the source files from the providers or project data stewards described
+in `DATA_SOURCES.md`, then arrange local, untracked inputs under:
 
-### Option 1: Download from Dryad
-
-Data is archived on Dryad (DOI: TBD). Download and extract into `data/`.
-
-### Option 2: Symlink from Google Drive (lab members)
-
-```bash
-GDRIVE="/Users/$(whoami)/Library/CloudStorage/GoogleDrive-astier@ucsb.edu/My Drive/Stier Lab/People/Emily Donham/Projects/Kelp MPA/data"
-PROJECT="$HOME/Donham-Stier-CA-MPA-Data-2026/data"
-
-ln -s "$GDRIVE/MBON" "$PROJECT/MBON"
-ln -s "$GDRIVE/PISCO" "$PROJECT/PISCO"
-ln -s "$GDRIVE/LTER" "$PROJECT/LTER"
-ln -s "$GDRIVE/LANDSAT" "$PROJECT/LANDSAT"
-ln -s "$GDRIVE/MPA" "$PROJECT/MPA"
-ln -s "$GDRIVE/ALL_sizefreq_2024.csv" "$PROJECT/ALL_sizefreq_2024.csv"
+```text
+data/MBON/
+data/PISCO/
+data/LTER/
+data/LANDSAT/
+data/MPA/
+data/ALL_sizefreq_2024.csv
 ```
+
+The current tracked harmonized outputs are included under `output/harmonized/`.
+Do not add raw monitoring extracts, lab Drive paths, or local symlinks to git.
 
 ## Output
 

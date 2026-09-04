@@ -1,5 +1,12 @@
-# Superseded
+# Data Repo Boundary
 
-*Archived 2026-08-23 (Phase 6).* This repo's project continues in
-**[`sbc-2026-donham-kelp-mpa-cascade`](https://github.com/stier-lab/sbc-2026-donham-kelp-mpa-cascade)** (also check org stier-lab/adrianstier).
-Content here is preserved read-only. Rationale: Data-processing companion (PISCO/KFM/LTER/Landsat harmonization); data arm of the CA-MPA project
+This repository is a source-data harmonization companion for the current public
+analysis repo:
+
+```text
+https://github.com/stier-lab/sbc-2026-donham-kelp-mpa-cascade
+```
+
+The GitHub repo is archived/read-only after the 2026-09-03 cleanup. Treat this
+repo as provenance for PISCO/KFM/LTER/Landsat harmonization, not as the final
+manuscript data/code release by itself.

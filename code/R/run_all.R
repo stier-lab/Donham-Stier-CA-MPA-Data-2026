@@ -186,7 +186,7 @@ if (length(missing_data) > 0) {
     "  MISSING RAW DATA FILES\n",
     "========================================================================\n\n",
     paste("  -", basename(missing_data), collapse = "\n"), "\n\n",
-    "Set up data symlinks or download from Dryad. See README.md.\n"
+    "Set up local, untracked source-data inputs from the providers or project data stewards described in README.md and DATA_SOURCES.md.\n"
   )
   stop(msg, call. = FALSE)
 }

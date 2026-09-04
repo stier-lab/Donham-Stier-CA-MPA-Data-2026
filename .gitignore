@@ -19,7 +19,7 @@ logs/*.log
 firebase-debug.log
 local_archive/
 
-# Large raw data files (symlink from Google Drive or download from Dryad)
+# Large raw data files and local provider/lab copies
 data/MBON
 data/PISCO
 data/LTER
