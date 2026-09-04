@@ -360,11 +360,11 @@ bootstrap_biomass <- function(count, size_freq_indices, size_freq_table,
 #'       where absolute values differ across sites; see Thiault et al.
 #'       (2017) Methods in Ecology and Evolution for the pBACIPS framework.
 #'
-#'   Implication: Because proportions are calculated within each
-#'   MPA x taxon x status (mpa/reference) combination, any multiplicative
-#'   bias in the underlying measurements (e.g., the stipe-vs-frond issue
-#'   in LTER kelp data) cancels out in the proportion calculation, provided
-#'   the bias is constant across years within each group.
+#'   Implication: Because proportions are calculated within each source-specific
+#'   MPA x taxon processing group, any multiplicative bias in the underlying
+#'   measurements (e.g., the stipe-vs-frond issue in LTER kelp data) cancels out
+#'   in the proportion calculation, provided the bias is constant across years
+#'   within each group.
 #'
 #'   See also: Manuscript methods section and calculate_log_response_ratio()
 #'   in this file.
@@ -377,7 +377,7 @@ bootstrap_biomass <- function(count, size_freq_indices, size_freq_table,
 #'   \code{"fixed"}, or \code{"none"}.
 #' @return The input data frame with two new columns:
 #'   \describe{
-#'     \item{Prop}{Raw proportion (value / max value within MPA-taxon).}
+#'     \item{Prop}{Raw proportion (value / max value within MPA-taxon group).}
 #'     \item{PropCorr}{Zero-corrected proportion for safe log transformation.}
 #'   }
 calculate_proportions <- function(df, value_col, correction_method = "adaptive") {

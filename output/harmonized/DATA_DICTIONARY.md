@@ -161,7 +161,7 @@ Maintained in `01_utils.R`:
 
 ### Proportion-based lnRR (non-standard)
 
-This pipeline computes lnRR on **proportions of time-series maxima**, not on raw means. The proportion is the value at year *t* divided by the per-MPA × taxon × status maximum across the full time series, with a small zero-correction (`adaptive` mode = half the minimum non-zero proportion within the group, `fixed` mode = +0.01 for sensitivity). This non-standard approach standardizes across programs that use different transect areas, survey methods, and spatial extents, at the cost of giving up an absolute-scale lnRR. The choice is invariant to multiplicative scaling within a group, which is why the KFM urchin quad-area fix has zero impact on response ratios (response ratios are unchanged even though absolute densities are now correct for 1982–1984).
+This pipeline computes lnRR on **proportions of time-series maxima**, not on raw means. The proportion is the value at year *t* divided by the maximum within the source-specific MPA × taxon processing group, with inside-MPA and reference observations kept on the same scaling basis. The small zero-correction is group-specific (`adaptive` mode = half the minimum non-zero proportion within the group, `fixed` mode = +0.01 for sensitivity). This non-standard approach standardizes across programs that use different transect areas, survey methods, and spatial extents, at the cost of giving up an absolute-scale lnRR. The choice is invariant to multiplicative scaling within a group, which is why the KFM urchin quad-area fix has zero impact on response ratios (response ratios are unchanged even though absolute densities are now correct for 1982–1984).
 
 ### Sheephead level filter (PISCO fish, audit 2026-05-04)
 

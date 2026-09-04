@@ -176,8 +176,17 @@ required_data <- c(
   here::here("data", "Site_List_All.csv"),
   here::here("data", "MPAfeatures_subset.csv"),
   here::here("data", "PISCO", "MLPA_kelpforest_swath_2024.csv"),
+  here::here("data", "PISCO", "MLPA_kelpforest_fish_2024.csv"),
+  here::here("data", "PISCO", "master_site_table_Emilyedit.csv"),
+  here::here("data", "PISCO", "spp_attribute_table_downloaded_9-13-22_SHSPUL.csv"),
   here::here("data", "MBON", "SBCMBON_kelp_forest_integrated_quad_and_swath_20231022.csv"),
-  here::here("data", "LTER", "Annual_fish_comb_20240307.csv")
+  here::here("data", "MBON", "SBCMBON_kelp_forest_integrated_fish_20231022.csv"),
+  here::here("data", "MBON", "SBCMBON_kelp_forest_site_geolocation_20210120_KFM_LTER.csv"),
+  here::here("data", "MBON", "KFM_Macrocystis_RawData_1984-2023.csv"),
+  here::here("data", "LTER", "Annual_Kelp_All_Years_20240305.csv"),
+  here::here("data", "LTER", "Annual_fish_comb_20240307.csv"),
+  here::here("data", "LTER", "Lobster_Abundance_All_Years_20230831.csv"),
+  here::here("data", "LANDSAT", "MPA_Runs_new.csv")
 )
 missing_data <- required_data[!file.exists(required_data)]
 if (length(missing_data) > 0) {
